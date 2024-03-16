@@ -50,8 +50,12 @@ async def start(ctx):
 
 
 async def send_message(
-    user_id: int, message: discord.Embed, buttons: discord.ui.View = discord.ui.View()
-) -> None:
+    user_id: int,
+    message: discord.Embed,
+    buttons: discord.ui.View = discord.ui.View(),
+    message_id: int | None = None,
+) -> int:
+
     try:
         user = await client.fetch_user(user_id)
         if not user:
@@ -67,11 +71,20 @@ async def send_message(
         else:
             dm_channel = user.dm_channel
 
-        await dm_channel.send(embed=message, view=buttons)
+        if message_id:
+            msg = await dm_channel.fetch_message(message_id)
+
+            await msg.edit(embed=message, view=buttons)
+
+            return msg.id
+        else:
+            msg = await dm_channel.send(embed=message, view=buttons)
+            return msg.id
 
     except (discord.HTTPException, ValueError) as e:
 
         print(f"Error sending DM: {e}")
+        return -1
 
 
 @client.event

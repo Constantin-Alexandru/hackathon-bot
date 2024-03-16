@@ -1,8 +1,36 @@
 from embedbuilder import EmbedBuilder
 from discord import Embed
+from game import Card
 
 
 class EmbedFactory:
+
+    def error(self, session_id: str, error_msg: str) -> Embed:
+        raise NotImplemented()
+
+    def waitForStart(self, session_id: str, player_count: int) -> Embed:
+        raise NotImplemented()
+
+    def waitForTurn(self, session_id: str, action: str) -> Embed:
+        raise NotImplemented()
+
+    def turn(self, session_id: str, cards: list[Card]) -> Embed:
+        raise NotImplemented()
+
+    def card_info(self, card: Card) -> Embed:
+        raise NotImplemented()
+
+    def game_won(self, session_id: str) -> Embed:
+        raise NotImplemented()
+
+    def game_lost(self, session_id: str) -> Embed:
+        raise NotImplemented()
+
+    def game_over(self, session_id: str) -> Embed:
+        raise NotImplemented()
+
+    def rules(self) -> Embed:
+        raise NotImplemented()
 
     def create(self, session_id: str) -> Embed:
         return (
@@ -57,9 +85,9 @@ class EmbedFactory:
             .footer("Session ID: " + session_id)
             .embed()
         )
-    
+
     def draw(self, card_info: str, session_id: str) -> Embed:
-        return(
+        return (
             EmbedBuilder()
             .colour("white")
             .title("You have drawn the following card")
@@ -68,4 +96,5 @@ class EmbedFactory:
             .embed()
         )
 
-    def play()
+    def play():
+        raise NotImplemented()
