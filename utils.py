@@ -1,12 +1,8 @@
 import random
+import string
 
-characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-
-def create_session_id(length: int = 5) -> str:
-    return "".join(
-        [characters[random.randint(0, len(characters) - 1)] for i in range(length)]
-    )
+def random_string(option_string: str = string.ascii_letters, length: int = 10) -> str:
+    return random.choices(option_string, k=length)
 
 
 if __name__ == "__main__":
