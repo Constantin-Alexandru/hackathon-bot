@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Optional
 
 
 @dataclass
@@ -45,6 +46,10 @@ class Deck:
     @property
     def size(self) -> int:
         return len(self._cards)
+
+    @property
+    def top_card_kind(self) -> Optional[CardKind]:
+        return None if self.size == 0 else self._cards[0].kind
 
     def draw(self) -> Card:
         """Draw a card from the deck"""

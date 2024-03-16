@@ -101,6 +101,21 @@ class DeckTests(unittest.TestCase):
 
         self.assertEqual(deck.size - size_before, -1, "Deck did not shrink")
 
+    def test_top_card_type(self):
+        deck = Deck(
+            [
+                Card("The Thing", "You are The Thing", CardKind.ROLE),
+                Card(
+                    "Infected",
+                    "If you got this card from another player, you are infected!",
+                    CardKind.ROLE,
+                ),
+                Card("Flamethrower", "Kill an adjacent player", CardKind.ACTION),
+            ]
+        )
+
+        self.assertEqual(deck.top_card_kind, CardKind.ROLE)
+
 
 if __name__ == "__main__":
     unittest.main()
