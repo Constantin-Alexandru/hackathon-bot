@@ -19,7 +19,7 @@ class Game:
         return len(self._players)
 
 
-class CardType(Enum):
+class CardKind(Enum):
     ROLE = auto()
     PANIC = auto()
     ACTION = auto()
@@ -30,7 +30,7 @@ class CardType(Enum):
 class Card:
     name: str
     description: str
-    kind: CardType
+    kind: CardKind
 
     def play(self, game: Game) -> None:
         raise NotImplementedError()
