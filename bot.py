@@ -1,10 +1,35 @@
 import discord
 from discord.ext import commands
+from command import create_command, CommandType
 
 
 @commands.command()
 async def ping(ctx):
     await ctx.send("pong")
+
+
+@commands.command()
+async def create(ctx):
+    user_id = ctx.author.id
+    command = create_command(CommandType.COMMAND_CREATE, user_id)
+
+
+@commands.command()
+async def join(ctx, session_id: str):
+    user_id = ctx.author.id
+    command = create_command(CommandType.COMMAND_JOIN, user_id, session_id)
+
+
+@commands.command()
+async def leave(ctx):
+    user_id = ctx.author.id
+    command = create_command(CommandType.COMMAND_LEAVE, user_id)
+
+
+@commands.command()
+async def join(ctx):
+    user_id = ctx.author.id
+    command = create_command(CommandType.COMMAND_START, user_id)
 
 
 async def send_message(user_id: int, message: str) -> None:
