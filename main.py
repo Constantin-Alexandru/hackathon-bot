@@ -1,9 +1,8 @@
-from bot import create_client
+from bot import client, send_message
 from config import config
 
 
 def main():
-    client = create_client()
     client.run(config["BOT_KEY"])
 
 
