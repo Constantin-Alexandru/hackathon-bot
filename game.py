@@ -6,9 +6,20 @@ from random import shuffle
 import json
 
 
-@dataclass
 class Player:
     pid: str
+    hand: list[Card]
+    role: Role
+
+    def __init__(self, pid: str) -> None:
+        self.pid = pid
+        self.hand = list()
+        self.role = Role.HUMAN
+
+    def deal_card(self, card: Card) -> None:
+        if card.card_type == CardType.THE_THING:
+            self.role = Role.THE_THING
+        self.hand.append(card)
 
 
 class Game:
@@ -29,14 +40,52 @@ class CardKind(Enum):
     DEFENSE = auto()
 
 
+class CardType(Enum):
+    THE_THING = auto()
+    INFECTED = auto()
+    FLAMETHROWER = auto()
+    ANALYSIS = auto()
+    AXE = auto()
+    SUSPICIOUS = auto()
+    WHISKEY = auto()
+    RESOLUTE = auto()
+    WATCH_YOUR_BACK = auto()
+    CHANGE_PLACES = auto()
+    YOUD_BETTER_RUN = auto()
+    SEDUCTION = auto()
+    SCARY = auto()
+    IM_COMFORTABLE = auto()
+    NO_THANKS = auto()
+    MISSED = auto()
+    NO_BARBECUE = auto()
+    QUARANTINE = auto()
+    BARRED_DOOR = auto()
+    ROTTEN_ROPES = auto()
+    ONE_TWO_THREE = auto()
+    FOUR_FIVE_SIX = auto()
+    WHERES_THE_PARTY = auto()
+    GET_OUT_OF_HERE = auto()
+    FORGETFUL = auto()
+    RING_AROUND_THE_ROSIE = auto()
+    LETS_BE_FRIENDS = auto()
+    BLIND_DATE = auto()
+    OOOPS = auto()
+    BETWEEN_US = auto()
+    REVELATIONS = auto()
+
+
+class Role(Enum):
+    HUMAN = auto()
+    INFECTED = auto()
+    THE_THING = auto()
+
+
 @dataclass(eq=True, frozen=True)
 class Card:
     name: str
     description: str
     kind: CardKind
-
-    def play(self, game: Game) -> None:
-        raise NotImplementedError()
+    card_type: CardType
 
 
 class Deck:
