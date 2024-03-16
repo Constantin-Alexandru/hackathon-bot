@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional
+from random import shuffle
 
 
 @dataclass
@@ -51,14 +52,16 @@ class Deck:
     def top_card_kind(self) -> Optional[CardKind]:
         return None if self.size == 0 else self._cards[0].kind
 
-    def draw(self) -> Card:
+    def draw(self) -> Optional[Card]:
         """Draw a card from the deck"""
-        raise NotImplementedError()
+        if self.size == 0:
+            return None
+        return self._cards.pop(0)
 
     def add_card(self, card: Card) -> None:
         """Add a card to the deck"""
-        raise NotImplementedError()
+        self._cards.append(card)
 
     def shuffle(self) -> None:
         """Shuffle the deck"""
-        raise NotImplementedError()
+        shuffle(self._cards)
