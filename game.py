@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import Enum, auto
-from deck import DeckFactory, Deck, Card, CardType
+from deck import DeckFactory, Deck, Card, CardType, CardKind
 
 
 class Player:
@@ -18,6 +18,9 @@ class Player:
             self.role = Role.THE_THING
         self.hand.append(card)
 
+    def give_card(self, card: Card) -> None:
+        self.hand.append(card)
+
 
 class Role(Enum):
     HUMAN = auto()
@@ -29,22 +32,57 @@ class Game:
     _players: list[Player]
     _draw_deck: Deck
     _discard_deck: Deck
+    _current_player_index: int
 
     def __init__(self, player_ids: list[str]) -> None:
         self._players = list(map(lambda pid: Player(pid), player_ids))
         self._draw_deck = DeckFactory.create_deck(len(self._players))
         self._discard_deck = Deck([])
+        self._current_player_index = 0
 
     @property
     def player_count(self) -> int:
         return len(self._players)
 
+    @property
+    def current_player(self) -> Player:
+        return self._players[self._current_player_index]
+
     def start(self):
         self._draw_deck.shuffle()
 
-        self.deal_cards()
+        self.deal_hands()
 
-    def deal_cards(self):
+    def draw_card(self) -> Card:
+        card = self._draw_deck.draw()
+        if card is not None:
+            return card
+
+        self._draw_deck, self._discard_deck = self._discard_deck, self._draw_deck
+        self._draw_deck.shuffle()
+        return self._draw_deck.draw()
+
+    def turn_start(self):
+        drawn_card = self.draw_card()
+
+        if drawn_card.kind == CardKind.PANIC:
+            self.play(drawn_card)
+        else:
+            self.current_player.give_card(drawn_card)
+
+        # TODO: Tell frontend what's happened
+
+    def play_card_index(self, idx: int):
+        self.play(self.current_player.hand[idx])
+
+    def play(self, card: Card):
+        match card.card_type:
+            case CardType.THE_THING | CardType.INFECTED:
+                self.update_interface("Cannot play this, dumb fuck!")
+            case _:
+                raise NotImplementedError()
+
+    def deal_hands(self):
         deal_deck = Deck([])
         the_thing = self._draw_deck.get_the_thing()
         assert the_thing is not None
@@ -62,3 +100,7 @@ class Game:
         for player in self._players:
             for _ in range(4):
                 player.deal_card(deal_deck.draw())
+    
+    def update_interface(self, message: str) -> None:
+        print(message)
+
