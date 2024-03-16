@@ -1,9 +1,11 @@
 import discord
 from discord.ext import commands
-    
+
+
 @commands.command()
 async def ping(ctx):
     await ctx.send("pong")
+
 
 def create_client() -> commands.Bot:
     intents = discord.Intents.default()
