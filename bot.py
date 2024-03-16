@@ -1,6 +1,23 @@
 import discord
 from discord.ext import commands
 from command import create_command, CommandType
+from callbacks import callbacks
+
+
+def create_client() -> commands.Bot:
+    intents = discord.Intents.default()
+    intents.message_content = True
+    client = commands.Bot(command_prefix="!", intents=intents)
+    client.add_command(ping)
+    client.add_command(create)
+    client.add_command(start)
+    client.add_command(join)
+    client.add_command(leave)
+
+    return client
+
+
+client = create_client()
 
 
 @commands.command()
@@ -27,12 +44,14 @@ async def leave(ctx):
 
 
 @commands.command()
-async def join(ctx):
+async def start(ctx):
     user_id = ctx.author.id
     command = create_command(CommandType.COMMAND_START, user_id)
 
 
-async def send_message(user_id: int, message: str) -> None:
+async def send_message(
+    user_id: int, message: discord.Embed, buttons: discord.ui.View = discord.ui.View()
+) -> None:
     try:
         user = await client.fetch_user(user_id)
         if not user:
@@ -48,19 +67,18 @@ async def send_message(user_id: int, message: str) -> None:
         else:
             dm_channel = user.dm_channel
 
-        await dm_channel.send(message)
+        await dm_channel.send(embed=message, view=buttons)
 
     except (discord.HTTPException, ValueError) as e:
+
         print(f"Error sending DM: {e}")
 
 
-def create_client() -> commands.Bot:
-    intents = discord.Intents.default()
-    intents.message_content = True
-    client = commands.Bot(command_prefix="!", intents=intents)
-    client.add_command(ping)
-
-    return client
-
-
-client = create_client()
+@client.event
+async def on_button_click(interaction):
+    if (
+        interaction.type == discord.InteractionType.Button
+        and interaction.message.author == client.user
+        and interaction.data.custom_id in callbacks
+    ):
+        callbacks[interaction.data.custom_id]()
