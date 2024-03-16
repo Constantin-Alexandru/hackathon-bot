@@ -10,48 +10,84 @@ class CardKind(Enum):
     PANIC = auto()
     ACTION = auto()
     DEFENSE = auto()
+    OBSTACLE = auto()
 
 
-class CardType(Enum):
-    THE_THING = auto()
-    INFECTED = auto()
-    FLAMETHROWER = auto()
-    ANALYSIS = auto()
-    AXE = auto()
-    SUSPICIOUS = auto()
-    WHISKEY = auto()
-    RESOLUTE = auto()
-    WATCH_YOUR_BACK = auto()
-    CHANGE_PLACES = auto()
-    YOUD_BETTER_RUN = auto()
-    SEDUCTION = auto()
-    SCARY = auto()
-    IM_COMFORTABLE = auto()
-    NO_THANKS = auto()
-    MISSED = auto()
-    NO_BARBECUE = auto()
-    QUARANTINE = auto()
-    BARRED_DOOR = auto()
-    ROTTEN_ROPES = auto()
-    ONE_TWO_THREE = auto()
-    FOUR_FIVE_SIX = auto()
-    WHERES_THE_PARTY = auto()
-    GET_OUT_OF_HERE = auto()
-    FORGETFUL = auto()
-    RING_AROUND_THE_ROSIE = auto()
-    LETS_BE_FRIENDS = auto()
-    BLIND_DATE = auto()
-    OOOPS = auto()
-    BETWEEN_US = auto()
-    REVELATIONS = auto()
+class CardType(str, Enum):
+    THE_THING = "The Thing"
+    INFECTED = "Infected"
+    FLAMETHROWER = "Flamethrower"
+    ANALYSIS = "Analysis"
+    AXE = "Axe"
+    SUSPICIOUS = "Suspicious"
+    WHISKEY = "Whiskey"
+    RESOLUTE = "Resolute"
+    WATCH_YOUR_BACK = "Watch Your Back"
+    CHANGE_PLACES = "Change Places"
+    YOUD_BETTER_RUN = "You'd Better Run"
+    SEDUCTION = "Seduction"
+    SCARY = "Scary"
+    IM_COMFORTABLE = "I'm Comfortable"
+    NO_THANKS = "No Thanks"
+    MISSED = "Missed"
+    NO_BARBECUE = "No Barbecue"
+    QUARANTINE = "Quarantine"
+    BARRED_DOOR = "Barred Door"
+    ROTTEN_ROPES = "Rotten Ropes"
+    ONE_TWO_THREE = "One Two Three"
+    FOUR_FIVE_SIX = "Four Five Six"
+    WHERES_THE_PARTY = "Wheres The Party"
+    GET_OUT_OF_HERE = "Get Out Of Here"
+    FORGETFUL = "Forgetful"
+    RING_AROUND_THE_ROSIE = "Ring Around The Rosie"
+    LETS_BE_FRIENDS = "Lets Be Friends"
+    BLIND_DATE = "Blind Date"
+    OOOPS = "Ooops"
+    BETWEEN_US = "Between Us"
+    REVELATIONS = "Revelations"
 
 
 @dataclass(eq=True, frozen=True)
 class Card:
-    name: str
-    description: str
-    kind: CardKind
     card_type: CardType
+
+    @property
+    def kind(self) -> CardKind:
+        match self.card_type:
+            case CardType.THE_THING | CardType.INFECTED:
+                return CardKind.ROLE
+            case CardType.FLAMETHROWER | \
+                CardType.ANALYSIS | \
+                CardType.AXE | \
+                CardType.SUSPICIOUS | \
+                CardType.WHISKEY | \
+                CardType.RESOLUTE | \
+                CardType.WATCH_YOUR_BACK | \
+                CardType.CHANGE_PLACES | \
+                CardType.YOUD_BETTER_RUN | \
+                CardType.SEDUCTION:
+                return CardKind.ACTION
+            case CardType.SCARY | \
+                CardType.IM_COMFORTABLE | \
+                CardType.NO_THANKS | \
+                CardType.MISSED | \
+                CardType.NO_BARBECUE:
+                return CardKind.DEFENSE
+            case CardType.QUARANTINE | CardType.BARRED_DOOR:
+                return CardKind.OBSTACLE
+            case CardType.ROTTEN_ROPES | \
+                CardType.ONE_TWO_THREE | \
+                CardType.FOUR_FIVE_SIX | \
+                CardType.WHERES_THE_PARTY | \
+                CardType.GET_OUT_OF_HERE | \
+                CardType.FORGETFUL | \
+                CardType.RING_AROUND_THE_ROSIE | \
+                CardType.LETS_BE_FRIENDS | \
+                CardType.BLIND_DATE | \
+                CardType.OOOPS | \
+                CardType.BETWEEN_US | \
+                CardType.REVELATIONS:
+                return CardKind.PANIC
 
 
 class Deck:
@@ -114,4 +150,4 @@ class DeckFactory:
 class CardFactory:
     @staticmethod
     def create_card(name: str) -> Card:
-        pass
+        return Card(name)
