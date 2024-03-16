@@ -34,7 +34,6 @@ def create_client() -> commands.Bot:
     intents.message_content = True
     client = commands.Bot(command_prefix="!", intents=intents)
     client.add_command(ping)
-    client.add_command(send)
 
     return client
 
