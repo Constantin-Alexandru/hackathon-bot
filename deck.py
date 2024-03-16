@@ -110,6 +110,19 @@ class Deck:
             return None
         return self._cards.pop(0)
 
+    def get_the_thing(self) -> Optional[Card]:
+        for idx, card in enumerate(self._cards):
+            if card.card_type == CardType.THE_THING:
+                return self._cards.pop(idx)
+
+        return None
+
+    def get_deal_card(self) -> Optional[Card]:
+        for idx, card in enumerate(self._cards):
+            if card.kind != CardKind.PANIC or card.kind != CardKind.ROLE:
+                return self._cards.pop(idx)
+        return None
+
     def add_card(self, card: Card) -> None:
         """Add a card to the deck"""
         self._cards.append(card)
