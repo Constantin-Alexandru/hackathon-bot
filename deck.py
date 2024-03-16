@@ -129,7 +129,7 @@ class DeckFactory:
         assert 4 <= player_count <= 12
 
         if DeckFactory._config is None:
-            DeckFactory.load_config()
+            DeckFactory._load_config()
 
         deck_description = DeckFactory._config.get(str(player_count))
         cards: list[Card] = []
@@ -141,7 +141,7 @@ class DeckFactory:
         return Deck(cards)
 
     @staticmethod
-    def load_config():
+    def _load_config():
         """Reads the config file and stores it in `_config`"""
         with open(DeckFactory.CONFIG_FILE) as config_file:
             DeckFactory._config = json.load(config_file)
