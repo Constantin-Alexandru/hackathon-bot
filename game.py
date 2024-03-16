@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional
 from random import shuffle
+import json
 
 
 @dataclass
@@ -65,3 +66,37 @@ class Deck:
     def shuffle(self) -> None:
         """Shuffle the deck"""
         shuffle(self._cards)
+
+
+class DeckFactory:
+    _config: Optional[dict[str, dict[str, int]]] = None
+    CONFIG_FILE = "card_counts.json"
+
+    @staticmethod
+    def create_deck(player_count: int) -> Deck:
+        """Creates a deck based on the player count"""
+        assert 4 <= player_count <= 12
+
+        if DeckFactory._config is None:
+            DeckFactory.load_config()
+
+        deck_description = DeckFactory._config.get(str(player_count))
+        cards: list[Card] = []
+
+        for card_name, card_count in deck_description.items():
+            for _ in range(card_count):
+                cards.append(CardFactory.create_card(card_name))
+
+        return Deck(cards)
+
+    @staticmethod
+    def load_config():
+        """Reads the config file and stores it in `_config`"""
+        with open(DeckFactory.CONFIG_FILE) as config_file:
+            DeckFactory._config = json.load(config_file)
+
+
+class CardFactory:
+    @staticmethod
+    def create_card(name: str) -> Card:
+        pass
