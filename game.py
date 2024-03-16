@@ -22,6 +22,12 @@ class Player:
         self.hand.append(card)
 
 
+class Role(Enum):
+    HUMAN = auto()
+    INFECTED = auto()
+    THE_THING = auto()
+
+
 class Game:
     _players: list[Player]
 
@@ -72,12 +78,6 @@ class CardType(Enum):
     OOOPS = auto()
     BETWEEN_US = auto()
     REVELATIONS = auto()
-
-
-class Role(Enum):
-    HUMAN = auto()
-    INFECTED = auto()
-    THE_THING = auto()
 
 
 @dataclass(eq=True, frozen=True)
