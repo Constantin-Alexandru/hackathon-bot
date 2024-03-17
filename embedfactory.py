@@ -149,6 +149,8 @@ class EmbedFactory:
             return Colour.green()
         if card.kind == CardKind.DEFENSE:
             return Colour.blue()
+        else:
+            return Colour.gold()
 
     @staticmethod
     def card_type(card: Card) -> str:
