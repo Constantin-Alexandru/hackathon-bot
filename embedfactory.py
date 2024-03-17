@@ -50,7 +50,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.tooltip(card.card_type, card.card_type)
+            embed.tooltip(card.card_type, card.description)
 
         return embed.footer(f"Session ID: {session_id}").embed()
 
@@ -74,7 +74,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.tooltip(card.card_type, card.card_type)
+            embed.tooltip(card.card_type, card.description)
 
         embed.footer(f"Session ID: {session_id}")
 
@@ -90,7 +90,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.tooltip(card.card_type, card.card_type)
+            embed.tooltip(card.card_type, card.description)
 
         embed.footer(f"Session ID: {session_id}")
 
