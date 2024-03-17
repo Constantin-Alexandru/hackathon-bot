@@ -1,4 +1,5 @@
 from embedbuilder import EmbedBuilder
+from __future__ import annotations
 from discord import Embed, Colour
 from game import Card, CardKind
 
