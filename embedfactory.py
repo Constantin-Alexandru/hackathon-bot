@@ -1,5 +1,5 @@
-from embedbuilder import EmbedBuilder
 from __future__ import annotations
+from embedbuilder import EmbedBuilder
 from discord import Embed, Colour
 from game import Card, CardKind
 
@@ -50,7 +50,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.field(card.card_type, card.card_type)
+            embed.tooltip(card.card_type)
 
         return embed.footer(f"Session ID: {session_id}").embed()
 
@@ -105,7 +105,7 @@ class EmbedFactory:
     def rules(self) -> Embed:
         return (
             EmbedBuilder()
-            .colour(Colour.light_grey)
+            .colour(Colour.light_grey())
             .title("Rules of Stay Away!")
             .description(
                 "At the start of the game 4 cards will be dealt to each player. \

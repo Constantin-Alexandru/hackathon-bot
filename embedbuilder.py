@@ -19,7 +19,8 @@ class EmbedBuilder:
         return self
 
     def tooltip(self, tooltip: str) -> EmbedBuilder:
-        self._embed.description = f"[Info](https://google.com '{tooltip}')"
+        self._embed.description += f'[Info](https://discord.com "{tooltip}")'
+        return self
 
     def field(
         self, name: str, value: str, at: int | None = None, inline: bool = False
