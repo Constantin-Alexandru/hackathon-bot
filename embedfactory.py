@@ -55,6 +55,48 @@ class EmbedFactory:
         return embed.footer(f"Session ID: {session_id}").embed()
 
     @staticmethod
+    def accept_defend(session_id: str) -> Embed:
+        return (
+            EmbedBuilder()
+            .colour(Colour.gold())
+            .title("A trade was offered. What do you do?")
+            .description("Will you accept or defend?")
+            .footer(f"Session ID: {session_id}")
+        )
+
+    @staticmethod
+    def swap_cards(session_id: str, cards: list[Card]) -> Embed:
+        embed = (
+            EmbedBuilder()
+            .colour(Colour.gold())
+            .title("Choose a card to swap")
+            .description("Pick any of your cards to swap")
+        )
+
+        for card in cards:
+            embed.tooltip(card.card_type, card.card_type)
+
+        embed.footer(f"Session ID: {session_id}")
+
+        return embed.embed()
+
+    @staticmethod
+    def defend_cards(session_id: str, cards: list[Card]) -> Embed:
+        embed = (
+            EmbedBuilder()
+            .colour(Colour.gold())
+            .title("Choose a card to defend")
+            .description("Pick any of your cards to defend")
+        )
+
+        for card in cards:
+            embed.tooltip(card.card_type, card.card_type)
+
+        embed.footer(f"Session ID: {session_id}")
+
+        return embed.embed()
+
+    @staticmethod
     def card_info(card: Card) -> Embed:
         return (
             EmbedBuilder()
