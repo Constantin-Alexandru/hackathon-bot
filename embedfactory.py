@@ -59,7 +59,7 @@ class EmbedFactory:
         return (
             EmbedBuilder()
             .colour(EmbedFactory.card_colour(card))
-            .title(f":black_joker: {card.name} :black_joker:")
+            .title(f":black_joker: {card.card_type} :black_joker:")
             .description(card.card_type)
             .field("Card Type: ", EmbedFactory.card_type(card))
             .embed()
