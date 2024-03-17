@@ -55,9 +55,28 @@ class LobbyManager:
         lobby: Lobby | None = LobbyManager.__get_lobby(command.lobby_id)
 
         if not lobby:
+            errorEmbed = EmbedFactory.error(
+                command.lobby_id, f"No Lobby was found with id {command.lobby_id}"
+            )
+            await LobbyManager._send_message(
+                command.user_id, errorEmbed, ViewFactory.empty()
+            )
             return False
 
         if lobby.host_id[0] == command.user_id:
+            errorEmbed = EmbedFactory.error(
+                command.lobby_id, f"You cannot join your own lobby"
+            )
+            await LobbyManager._send_message(
+                command.user_id, errorEmbed, ViewFactory.empty()
+            )
+            return False
+
+        if len(lobby.users) == 12:
+            errorEmbed = EmbedFactory.error(command.lobby_id, f"Lobby is full")
+            await LobbyManager._send_message(
+                command.user_id, errorEmbed, ViewFactory.empty()
+            )
             return False
 
         view = ViewFactory.empty()
