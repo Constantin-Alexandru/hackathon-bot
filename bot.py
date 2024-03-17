@@ -74,23 +74,8 @@ async def send_message(
 
 
 LobbyManager.set_send_message(send_message)
-LobbyManager.setc(send_message)
+LobbyManager.set_client(client)
 
 
 async def add_button():
     res = await client.wait_for()
-
-
-@client.event
-async def button_click(interaction):
-    if (
-        interaction.type == discord.InteractionType.Button
-        and interaction.message.author == client.user
-    ):
-        print("REACHED")
-
-        user_id, lobby_id, value = interaction.data.custom_id.split("_")
-
-        await LobbyManager.process_command(GameCommand(int(user_id), lobby_id, value))
-    else:
-        print("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUCK")

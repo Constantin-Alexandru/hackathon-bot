@@ -4,7 +4,7 @@ import discord
 from discord.ui import View, Button
 from discord import ButtonStyle, Interaction
 
-from buttons import CallbackButton
+from callbackbutton import CallbackButton
 
 
 class ViewBuilder:
