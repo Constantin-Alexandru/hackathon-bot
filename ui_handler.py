@@ -1,14 +1,15 @@
 from __future__ import annotations
 from asyncio import Future, AbstractEventLoop
+from typing import Awaitable
 
 from discord import Embed
 from discord.ui import View
-from bot import send_message
 
 
 class UiHandler:
     _event_loop: AbstractEventLoop
     _futures: dict[tuple[str], Future[str]]
+    _send_message: callable[[str, Embed, View], Awaitable[None]]
 
     def __init__(self, event_loop: AbstractEventLoop) -> None:
         self._event_loop = event_loop
@@ -20,7 +21,7 @@ class UiHandler:
         fut = self._event_loop.create_future()
         self._futures[(user_id, message_id)] = fut
 
-        await send_message(user_id, discord_embed, buttons, message_id)
+        await self._send_message(user_id, discord_embed, buttons)
 
         return await fut
 

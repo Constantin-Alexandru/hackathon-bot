@@ -65,9 +65,18 @@ class LobbyManager:
         return True
 
     @staticmethod
-    def process_command(command: Command) -> None:
+    async def start(command: Command):
+        lobby: Lobby | None = LobbyManager.__get_lobby(command.lobby_id)
+
+        if not lobby:
+            return False
+
+        lobby.start_game()
+
+    @staticmethod
+    async def process_command(command: Command) -> None:
         match command:
             case CreateCommand():
-                LobbyManager.create(command)
+                await LobbyManager.create(command)
             case JoinCommand():
-                LobbyManager.join(command)
+                await LobbyManager.join(command)
