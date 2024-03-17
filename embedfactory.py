@@ -1,4 +1,5 @@
 from embedbuilder import EmbedBuilder
+from __future__ import annotations
 from discord import Embed, Colour
 from game import Card, CardKind
 
@@ -59,7 +60,7 @@ class EmbedFactory:
             EmbedBuilder()
             .colour(EmbedBuilder.card_colour(card))
             .title(f":black_joker: {card.name} :black_joker:")
-            .description(card.description)
+            .tooltip(card.description)
             .field("Card Type: ", EmbedBuilder.card_type(card))
             .embed()
         )
@@ -94,7 +95,7 @@ class EmbedFactory:
         return (
             EmbedBuilder()
             .colour(Colour.light_grey())
-            .title("Game Over!")
+            .title(":x: Game Over! :x:")
             .description("The game has ended")
             .footer(f"Session ID: {session_id}")
             .embed()
