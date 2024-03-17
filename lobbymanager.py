@@ -50,7 +50,7 @@ class LobbyManager:
         lobby = create_lobby(lobby_id, command.user_id, message_id)
 
         LobbyManager.lobbies.append(lobby)
-        return True
+        return lobby_id
 
     @staticmethod
     async def join(command: JoinCommand) -> bool:
@@ -74,7 +74,7 @@ class LobbyManager:
             )
             return False
         
-        if command.user_id in lobby:
+        if command.user_id in lobby.users.keys():
             errorEmbed = EmbedFactory.error(
                 command.lobby_id, f"You are already in this lobby"
             )
@@ -148,13 +148,15 @@ class LobbyManager:
         await lobby.start_game(command.event_loop, command._send_message)
 
     @staticmethod
-    async def process_command(command: Command) -> None:
+    async def process_command(command: Command) -> str:
         match command:
             case CreateCommand():
-                await LobbyManager.create(command)
+                return await LobbyManager.create(command)
             case JoinCommand():
                 await LobbyManager.join(command)
             case StartCommand():
                 await LobbyManager.start(command)
             case GameCommand():
                 await LobbyManager.lobbies[command.lobby_id].ui_handler
+
+        return None
