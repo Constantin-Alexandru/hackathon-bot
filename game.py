@@ -39,17 +39,13 @@ class Game:
     _discard_deck: Deck
     _current_player_index: int
     _ui_handler: UiHandler
-    _lobby_id: str
 
-    def __init__(
-        self, player_ids: list[int], handler: UiHandler, lobby_id: str
-    ) -> None:
+    def __init__(self, player_ids: list[int], handler: UiHandler) -> None:
         self._players = list(map(lambda pid: Player(pid), player_ids))
         self._draw_deck = DeckFactory.create_deck(len(self._players))
         self._discard_deck = Deck([])
         self._current_player_index = 0
         self._ui_handler = handler
-        self._lobby_id = lobby_id
 
     @property
     def player_count(self) -> int:
@@ -86,6 +82,9 @@ class Game:
     async def turn(self):
         drawn_card = self.draw_card()
 
+        async def callback(interaction: discord.Interaction):
+            print(interaction.data["custom_id"])
+
         if drawn_card.kind == CardKind.PANIC:
             self.play(drawn_card)
         else:
@@ -96,9 +95,10 @@ class Game:
                 ViewBuilder()
                 .add_buton(
                     "Suck Cock",
+                    f"suck_cock",
+                    callback,
                     discord.ButtonStyle.primary,
                     False,
-                    f"{self._lobby_id}_{self.current_player.pid}_suck.cock",
                 )
                 .view(),
             )

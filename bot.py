@@ -75,6 +75,7 @@ async def send_message(
 
 
 LobbyManager.set_send_message(send_message)
+LobbyManager.set_client(client)
 
 
 async def add_button():

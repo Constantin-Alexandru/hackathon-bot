@@ -1,6 +1,8 @@
 from typing import Awaitable, Callable
+from discord.ext import commands
 
-from discord import Embed
+from discord import Embed, Interaction
+import discord
 from discord.ui import View
 from lobby import create_lobby, Lobby
 from command import Command, CreateCommand, JoinCommand, StartCommand, GameCommand
@@ -12,6 +14,11 @@ from viewfactory import ViewFactory
 class LobbyManager:
     lobbies: list[Lobby] = []
     _send_message: Callable[[int, Embed, View, int], Awaitable[None]]
+    client: commands.Bot
+
+    @staticmethod
+    def set_client(client: commands.Bot):
+        LobbyManager.client = client
 
     @staticmethod
     def set_send_message(
@@ -68,7 +75,18 @@ class LobbyManager:
             await LobbyManager._send_message(user_id, embed, view, msg_id)
 
         if len(lobby.users) > 2:
-            view = ViewFactory.start(lobby.id)
+
+            async def callback(interaction: Interaction):
+                await LobbyManager.start(
+                    StartCommand(
+                        lobby.host_id[0],
+                        lobby.id,
+                        LobbyManager.client.loop,
+                        LobbyManager._send_message,
+                    )
+                )
+
+            view = ViewFactory.start(lobby.id, callback)
             print("REACHED")
 
         await LobbyManager._send_message(
