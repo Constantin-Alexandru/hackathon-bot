@@ -149,12 +149,14 @@ class Game:
         )
 
     async def pick_adjacent_player(self) -> Player:
-        async def next_player(interaction):
+        async def next_player(interaction: discord.Interaction):
+            await ack(interaction)
             self._ui_handler.set_user_response(
                 self.current_player.pid, self.next_player
             )
 
         async def previous_player(interaction):
+            await ack(interaction)
             self._ui_handler.set_user_response(
                 self.current_player.pid, self.previous_player
             )
@@ -259,6 +261,7 @@ class Game:
         for idx, card in enumerate(player.hand):
 
             async def callback(interaction: discord.Interaction):
+                await ack(interaction)
                 self._ui_handler.set_user_response(
                     player.pid, int(interaction.data["custom_id"])
                 )
@@ -279,6 +282,7 @@ class Game:
         for idx, card in enumerate(player.hand):
 
             async def callback(interaction: discord.Interaction):
+                await ack(interaction)
                 self._ui_handler.set_user_response(
                     player.pid, int(interaction.data["custom_id"])
                 )
@@ -296,9 +300,11 @@ class Game:
         view_builder = ViewBuilder()
 
         async def play_callback(interaction: discord.Interaction):
+            await ack(interaction)
             self._ui_handler.set_user_response(player.pid, True)
 
         async def discard_callback(interaction: discord.Interaction):
+            await ack(interaction)
             self._ui_handler.set_user_response(player.pid, False)
 
         return await self._ui_handler.send_user_prompt(
@@ -313,9 +319,11 @@ class Game:
         view_builder = ViewBuilder()
 
         async def accept_callback(interaction: discord.Interaction):
+            await ack(interaction)
             self._ui_handler.set_user_response(player.pid, True)
 
         async def defend_callback(interaction: discord.Interaction):
+            await ack(interaction)
             self._ui_handler.set_user_response(player.pid, False)
 
         return await self._ui_handler.send_user_prompt(
@@ -325,3 +333,10 @@ class Game:
             .add_buton("Defend", "defend", defend_callback)
             .view(),
         )
+
+
+async def ack(inter: discord.Interaction):
+    try:
+        await inter.response.send_message()
+    except Exception:
+        pass

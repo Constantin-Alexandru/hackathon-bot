@@ -30,6 +30,11 @@ async def create(ctx):
             view=ViewBuilder().add_buton("Join Game", "join", joinLobby).view(),
         )
 
+        try:
+            await inter.response.send_message()
+        except Exception:
+            pass
+
     if ctx.channel is not DMChannel:
         lobby: Lobby = LobbyManager.get_lobby(lobby_id)
 
