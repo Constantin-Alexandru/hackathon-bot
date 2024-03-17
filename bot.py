@@ -1,5 +1,6 @@
 from discord import DMChannel
 import discord
+from lobby import Lobby
 from viewbuilder import ViewBuilder
 from discord.ext import commands
 from command import CreateCommand, JoinCommand, StartCommand, GameCommand
@@ -20,20 +21,21 @@ async def create(ctx):
     lobby_id: str = await LobbyManager.process_command(CreateCommand(user_id))
 
     async def joinLobby(inter: discord.Interaction):
-        await LobbyManager.process_command(JoinCommand(inter.member.user.id, lobby_id))
+        await LobbyManager.process_command(JoinCommand(inter.user.id, lobby_id))
+
+        lobby: Lobby = LobbyManager.get_lobby(lobby_id)
+
         await inter.message.edit(
-            EmbedFactory.waitForStart(
-                lobby_id, len(LobbyManager.__get_lobby(lobby_id).users.keys())
-            ),
-            ViewBuilder().add_buton("Join Game", "join", joinLobby),
+            embed=EmbedFactory.waitForStart(lobby_id, len(lobby.users.keys()) + 1),
+            view=ViewBuilder().add_buton("Join Game", "join", joinLobby).view(),
         )
 
     if ctx.channel is not DMChannel:
+        lobby: Lobby = LobbyManager.get_lobby(lobby_id)
+
         await ctx.send(
-            EmbedFactory.waitForStart(
-                lobby_id, len(LobbyManager.__get_lobby(lobby_id).users.keys())
-            ),
-            ViewBuilder().add_buton("Join Game", "join", joinLobby),
+            embed=EmbedFactory.waitForStart(lobby_id, len(lobby.users.keys()) + 1),
+            view=ViewBuilder().add_buton("Join Game", "join", joinLobby).view(),
         )
 
 

@@ -27,7 +27,7 @@ class LobbyManager:
         LobbyManager._send_message = send_message
 
     @staticmethod
-    def __get_lobby(session_id: str) -> Lobby | None:
+    def get_lobby(session_id: str) -> Lobby | None:
         session_id = session_id.upper()
 
         for lobby in LobbyManager.lobbies:
@@ -54,7 +54,7 @@ class LobbyManager:
 
     @staticmethod
     async def join(command: JoinCommand) -> bool:
-        lobby: Lobby | None = LobbyManager.__get_lobby(command.lobby_id)
+        lobby: Lobby | None = LobbyManager.get_lobby(command.lobby_id)
 
         if not lobby:
             errorEmbed = EmbedFactory.error(
@@ -73,7 +73,7 @@ class LobbyManager:
                 command.user_id, errorEmbed, ViewFactory.empty()
             )
             return False
-        
+
         if command.user_id in lobby.users.keys():
             errorEmbed = EmbedFactory.error(
                 command.lobby_id, f"You are already in this lobby"
@@ -140,7 +140,7 @@ class LobbyManager:
 
     @staticmethod
     async def start(command: StartCommand):
-        lobby: Lobby | None = LobbyManager.__get_lobby(command.lobby_id)
+        lobby: Lobby | None = LobbyManager.get_lobby(command.lobby_id)
 
         if not lobby:
             return False
