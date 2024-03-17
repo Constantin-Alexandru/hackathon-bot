@@ -6,6 +6,7 @@ from deck import DeckFactory, Deck, Card, CardType, CardKind
 from embedfactory import EmbedFactory
 from ui_handler import UiHandler
 from viewbuilder import ViewBuilder
+from viewfactory import ViewFactory
 
 
 class Player:
@@ -55,10 +56,22 @@ class Game:
     def current_player(self) -> Player:
         return self._players[self._current_player_index]
 
+    @property
+    def next_player(self) -> Player:
+        return self._players[(self._current_player_index + 1) % self.player_count]
+
+    @property
+    def game_over(self) -> bool:
+        return False  # TODO
+
     async def start(self):
         self._draw_deck.shuffle()
 
-        self.deal_hands()
+        await self.deal_hands()
+
+        while not self.game_over:
+            await self.turn()
+            self.advance()
 
     def draw_card(self) -> Card:
         card = self._draw_deck.draw()
@@ -69,53 +82,44 @@ class Game:
         self._draw_deck.shuffle()
         return self._draw_deck.draw()
 
-    def turn_start(self):
-        drawn_card = self.draw_card()
-
-        if drawn_card.kind == CardKind.PANIC:
-            self.play(drawn_card)
-        else:
-            self.current_player.give_card(drawn_card)
-
-        # TODO: Tell frontend what's happened
-
     async def turn(self):
         drawn_card = self.draw_card()
 
-        async def callback(interaction: discord.Interaction):
-            print(interaction.data["custom_id"])
-            self._ui_handler.set_user_response(self.current_player.pid, "true")
+        terminates_turn = False
 
         if drawn_card.kind == CardKind.PANIC:
-            self.play(drawn_card)
+            terminates_turn = drawn_card.terminates
+            await self.play(drawn_card)
         else:
             self.current_player.give_card(drawn_card)
-            response = await self._ui_handler.send_user_prompt(
-                self.current_player.pid,
-                EmbedFactory.rules(),
-                ViewBuilder()
-                .add_buton(
-                    "Suck Cock",
-                    f"suck_cock",
-                    callback,
-                    discord.ButtonStyle.primary,
-                    False,
-                )
-                .view(),
-            )
-            print(f"response: {response}")
+            card = await self.pick_card(self.current_player)
+            is_playing = await self.discard_or_play(self.current_player, card)
+            if is_playing:
+                terminates_turn = card.terminates
+                await self.play(card)
+            self._discard_deck.add_card(card)
 
-    def play_card_index(self, idx: int):
-        self.play(self.current_player.hand[idx])
+        if terminates_turn:
+            return
 
-    def play(self, card: Card):
+        await self.swap_cards(self.current_player, self.next_player)
+
+    def advance(self):
+        self._current_player_index = (
+            self._current_player_index + 1
+        ) % self.player_count
+
+    # def play_card_index(self, idx: int):
+    #     self.play(self.current_player.hand[idx])
+
+    async def play(self, card: Card):
         match card.card_type:
             case CardType.THE_THING | CardType.INFECTED:
                 self.send_error("Cannot play this, dumb fuck!")
             case _:
                 raise NotImplementedError()
 
-    def deal_hands(self):
+    async def deal_hands(self):
         deal_deck = Deck([])
         the_thing = self._draw_deck.get_the_thing()
         assert the_thing is not None
@@ -134,5 +138,48 @@ class Game:
             for _ in range(4):
                 player.deal_card(deal_deck.draw())
 
+        await self.broadcast_player_cards()
+
     def send_error(self, message: str) -> None:
         self._ui_handler._send_message(EmbedFactory.error("", message))
+
+    async def broadcast_player_cards(self):
+        for player in self._players:
+            await self._ui_handler._send_message(
+                player.pid, EmbedFactory.turn("", player.hand), ViewFactory.empty()
+            )
+
+    async def pick_card(self, player: Player) -> Card:
+        """!!! REMOVES THE SELECTED CARD FROM THE HAND!!!"""
+        view_builder = ViewBuilder()
+
+        for idx, card in enumerate(player.hand):
+
+            async def callback(interaction: discord.Interaction):
+                self._ui_handler.set_user_response(player.pid, idx)
+
+            view_builder = view_builder.add_buton(card.card_type, str(idx), callback)
+
+        response = await self._ui_handler.send_user_prompt(
+            player.pid, EmbedFactory.turn("", player.hand), view_builder.view()
+        )
+
+        return player.hand.pop(response)
+
+    async def discard_or_play(self, player: Player, card: Card) -> bool:
+        """if True play, otherwise discard"""
+        view_builder = ViewBuilder()
+
+        async def play_callback(interaction: discord.Interaction):
+            self._ui_handler.set_user_response(player.pid, True)
+
+        async def discard_callback(interaction: discord.Interaction):
+            self._ui_handler.set_user_response(player.pid, False)
+
+        return await self._ui_handler.send_user_prompt(
+            player.pid,
+            EmbedFactory.card_info(card),
+            view_builder.add_buton("Play", "play", play_callback)
+            .add_buton("Discard", "discard", discard_callback)
+            .view(),
+        )
