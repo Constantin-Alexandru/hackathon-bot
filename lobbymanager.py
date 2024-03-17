@@ -27,7 +27,7 @@ class LobbyManager:
         LobbyManager._send_message = send_message
 
     @staticmethod
-    def __get_lobby(session_id: str) -> Lobby | None:
+    def get_lobby(session_id: str) -> Lobby | None:
         session_id = session_id.upper()
 
         for lobby in LobbyManager.lobbies:
@@ -50,11 +50,11 @@ class LobbyManager:
         lobby = create_lobby(lobby_id, command.user_id, message_id)
 
         LobbyManager.lobbies.append(lobby)
-        return True
+        return lobby_id
 
     @staticmethod
     async def join(command: JoinCommand) -> bool:
-        lobby: Lobby | None = LobbyManager.__get_lobby(command.lobby_id)
+        lobby: Lobby | None = LobbyManager.get_lobby(command.lobby_id)
 
         if not lobby:
             errorEmbed = EmbedFactory.error(
@@ -73,8 +73,8 @@ class LobbyManager:
                 command.user_id, errorEmbed, ViewFactory.empty()
             )
             return False
-        
-        if command.user_id in lobby:
+
+        if command.user_id in lobby.users.keys():
             errorEmbed = EmbedFactory.error(
                 command.lobby_id, f"You are already in this lobby"
             )
@@ -140,7 +140,7 @@ class LobbyManager:
 
     @staticmethod
     async def start(command: StartCommand):
-        lobby: Lobby | None = LobbyManager.__get_lobby(command.lobby_id)
+        lobby: Lobby | None = LobbyManager.get_lobby(command.lobby_id)
 
         if not lobby:
             return False
@@ -148,13 +148,15 @@ class LobbyManager:
         await lobby.start_game(command.event_loop, command._send_message)
 
     @staticmethod
-    async def process_command(command: Command) -> None:
+    async def process_command(command: Command) -> str:
         match command:
             case CreateCommand():
-                await LobbyManager.create(command)
+                return await LobbyManager.create(command)
             case JoinCommand():
                 await LobbyManager.join(command)
             case StartCommand():
                 await LobbyManager.start(command)
             case GameCommand():
                 await LobbyManager.lobbies[command.lobby_id].ui_handler
+
+        return None
