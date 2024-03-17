@@ -71,6 +71,15 @@ class LobbyManager:
                 command.user_id, errorEmbed, ViewFactory.empty()
             )
             return False
+        
+        if command.user_id in lobby:
+            errorEmbed = EmbedFactory.error(
+                command.lobby_id, f"You are already in this lobby"
+            )
+            await LobbyManager._send_message(
+                command.user_id, errorEmbed, ViewFactory.empty()
+            )
+            return False
 
         if len(lobby.users) == 12:
             errorEmbed = EmbedFactory.error(command.lobby_id, f"Lobby is full")
