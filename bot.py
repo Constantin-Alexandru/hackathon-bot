@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
-from command import create_command, CommandType
+from command import CreateCommand, JoinCommand
 from callbacks import callbacks
+from lobbymanager import LobbyManager
 
 
 def create_client() -> commands.Bot:
@@ -10,9 +11,7 @@ def create_client() -> commands.Bot:
     client = commands.Bot(command_prefix="!", intents=intents)
     client.add_command(ping)
     client.add_command(create)
-    client.add_command(start)
     client.add_command(join)
-    client.add_command(leave)
 
     return client
 
@@ -28,25 +27,13 @@ async def ping(ctx):
 @commands.command()
 async def create(ctx):
     user_id = ctx.author.id
-    command = create_command(CommandType.COMMAND_CREATE, user_id)
+    LobbyManager.process_command(CreateCommand(user_id))
 
 
 @commands.command()
 async def join(ctx, session_id: str):
     user_id = ctx.author.id
-    command = create_command(CommandType.COMMAND_JOIN, user_id, session_id)
-
-
-@commands.command()
-async def leave(ctx):
-    user_id = ctx.author.id
-    command = create_command(CommandType.COMMAND_LEAVE, user_id)
-
-
-@commands.command()
-async def start(ctx):
-    user_id = ctx.author.id
-    command = create_command(CommandType.COMMAND_START, user_id)
+    LobbyManager.process_command(JoinCommand(user_id, session_id))
 
 
 async def send_message(
