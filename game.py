@@ -88,6 +88,7 @@ class Game:
     def draw_non_panic(self) -> Card:
         card = self.draw_card()
         while card.kind == CardKind.PANIC:
+            self._discard_deck.add_card(card)
             card = self.draw_card()
         return card
 
@@ -106,7 +107,6 @@ class Game:
             if is_playing:
                 terminates_turn = card.terminates
                 await self.play(card)
-            self._discard_deck.add_card(card)
 
         if terminates_turn:
             return
@@ -118,35 +118,54 @@ class Game:
             self._current_player_index + 1
         ) % self.player_count
 
-    # def play_card_index(self, idx: int):
-    #     self.play(self.current_player.hand[idx])
-
     async def play(self, card: Card):
         # match card.card_type:
         #     case CardType.THE_THING | CardType.INFECTED:
         #         self.send_error("Cannot play this, dumb fuck!")
         #     case _:
         #         raise NotImplementedError()
-        print("Play should happen")
+        print(f"Card {card.card_type} played")
+        self._discard_deck.add_card(card)
 
     async def swap_cards(self, offering_player: Player, receiving_player: Player):
         offered_card = await self.pick_swap_card(offering_player)
+        print(
+            f"Player {offering_player.pid} offers {offered_card.card_type} to {receiving_player.pid}"
+        )
 
         accepting = await self.accept_or_defend(receiving_player)
 
         if accepting:
+            print(f"Player {receiving_player.pid} accepts")
             response_card = await self.pick_swap_card(receiving_player)
+            print(
+                f"Player {receiving_player.pid} chose to respond with {response_card.card_type}"
+            )
             offering_player.give_card(response_card)
             receiving_player.give_card(offered_card)
         else:
-            defense_card = self.pick_card(receiving_player)
+            defense_card = await self.pick_card(receiving_player)
             await self.play(defense_card)  # TODO
             receiving_player.deal_card(self.draw_non_panic())
             assert len(receiving_player.hand) == 4
 
     async def pick_swap_card(self, player: Player):
-        # TODO: Implement card checks for swaps here
-        return await self.pick_card(player)
+        selected_card = await self.pick_swap_card_prompt(player)
+
+        if player.role == Role.HUMAN:
+            while selected_card.card_type == CardType.INFECTED:
+                player.deal_card(selected_card)
+                selected_card = await self.pick_swap_card_prompt(player)
+        elif player.role == Role.INFECTED:
+            while all(card.card_type != CardType.INFECTED for card in player.hand):
+                player.deal_card(selected_card)
+                selected_card = await self.pick_swap_card_prompt(player)
+        elif player.role == Role.THE_THING:
+            while all(card.card_type != CardType.THE_THING for card in player.hand):
+                player.deal_card(selected_card)
+                selected_card = await self.pick_swap_card_prompt(player)
+
+        return selected_card
 
     async def deal_hands(self):
         deal_deck = Deck([])
@@ -201,6 +220,22 @@ class Game:
 
         return player.hand.pop(response)
 
+    async def pick_swap_card_prompt(self, player: Player):
+        view_builder = ViewBuilder()
+
+        for idx, card in enumerate(player.hand):
+
+            async def callback(interaction: discord.Interaction):
+                self._ui_handler.set_user_response(player.pid, idx)
+
+            view_builder = view_builder.add_buton(card.card_type, str(idx), callback)
+
+        response = await self._ui_handler.send_user_prompt(
+            player.pid, EmbedFactory.swap_cards("", player.hand), view_builder.view()
+        )
+
+        return player.hand.pop(response)
+
     async def discard_or_play(self, player: Player, card: Card) -> bool:
         """if True play, otherwise discard"""
         view_builder = ViewBuilder()
@@ -220,4 +255,18 @@ class Game:
         )
 
     async def accept_or_defend(self, player: Player) -> bool:
-        return True  # TODO
+        view_builder = ViewBuilder()
+
+        async def accept_callback(interaction: discord.Interaction):
+            self._ui_handler.set_user_response(player.pid, True)
+
+        async def defend_callback(interaction: discord.Interaction):
+            self._ui_handler.set_user_response(player.pid, False)
+
+        return await self._ui_handler.send_user_prompt(
+            player.pid,
+            EmbedFactory.accept_defend(""),
+            view_builder.add_buton("Accept", "accept", accept_callback)
+            .add_buton("Defend", "defend", defend_callback)
+            .view(),
+        )
