@@ -66,10 +66,13 @@ class Game:
 
     async def start(self):
         self._draw_deck.shuffle()
+        print("Deck is shuffled")
 
         await self.deal_hands()
 
+        print("Cards are dealt")
         while not self.game_over:
+            print(f"It's player {self._current_player_index}'s turn")
             await self.turn()
             self.advance()
 
@@ -82,6 +85,12 @@ class Game:
         self._draw_deck.shuffle()
         return self._draw_deck.draw()
 
+    def draw_non_panic(self) -> Card:
+        card = self.draw_card()
+        while card.kind == CardKind.PANIC:
+            card = self.draw_card()
+        return card
+
     async def turn(self):
         drawn_card = self.draw_card()
 
@@ -91,7 +100,7 @@ class Game:
             terminates_turn = drawn_card.terminates
             await self.play(drawn_card)
         else:
-            self.current_player.give_card(drawn_card)
+            self.current_player.deal_card(drawn_card)
             card = await self.pick_card(self.current_player)
             is_playing = await self.discard_or_play(self.current_player, card)
             if is_playing:
@@ -120,6 +129,25 @@ class Game:
         #         raise NotImplementedError()
         print("Play should happen")
 
+    async def swap_cards(self, offering_player: Player, receiving_player: Player):
+        offered_card = await self.pick_swap_card(offering_player)
+
+        accepting = await self.accept_or_defend(receiving_player)
+
+        if accepting:
+            response_card = await self.pick_swap_card(receiving_player)
+            offering_player.give_card(response_card)
+            receiving_player.give_card(offered_card)
+        else:
+            defense_card = self.pick_card(receiving_player)
+            await self.play(defense_card)  # TODO
+            receiving_player.deal_card(self.draw_non_panic())
+            assert len(receiving_player.hand) == 4
+
+    async def pick_swap_card(self, player: Player):
+        # TODO: Implement card checks for swaps here
+        return await self.pick_card(player)
+
     async def deal_hands(self):
         deal_deck = Deck([])
         the_thing = self._draw_deck.get_the_thing()
@@ -139,7 +167,9 @@ class Game:
             for _ in range(4):
                 player.deal_card(deal_deck.draw())
 
+        print("Generated player hands")
         await self.broadcast_player_cards()
+        print("Player hands broadcasted")
 
     def send_error(self, message: str) -> None:
         self._ui_handler._send_message(
@@ -188,3 +218,6 @@ class Game:
             .add_buton("Discard", "discard", discard_callback)
             .view(),
         )
+
+    async def accept_or_defend(self, player: Player) -> bool:
+        return True  # TODO

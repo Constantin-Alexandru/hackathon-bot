@@ -99,6 +99,12 @@ class Card:
     def terminates(self) -> bool:
         return False  # TODO
 
+    @property
+    def description(self) -> str:
+        match self.card_type:
+            case CardType.THE_THING:
+                return "You are the thing"
+
 
 class Deck:
     _cards: list[Card]
