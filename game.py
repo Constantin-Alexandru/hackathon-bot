@@ -66,10 +66,13 @@ class Game:
 
     async def start(self):
         self._draw_deck.shuffle()
+        print("Deck is shuffled")
 
         await self.deal_hands()
 
+        print("Cards are dealt")
         while not self.game_over:
+            print(f"It's player {self._current_player_index}'s turn")
             await self.turn()
             self.advance()
 
@@ -139,7 +142,9 @@ class Game:
             for _ in range(4):
                 player.deal_card(deal_deck.draw())
 
+        print("Generated player hands")
         await self.broadcast_player_cards()
+        print("Player hands broadcasted")
 
     def send_error(self, message: str) -> None:
         self._ui_handler._send_message(EmbedFactory.error("", message))
