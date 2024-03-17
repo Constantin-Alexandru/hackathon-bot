@@ -68,8 +68,21 @@ class Game:
         return self._players[(self._current_player_index - 1) % self.player_count]
 
     @property
-    def game_over(self) -> bool:
-        return False  # TODO
+    async def game_over(self) -> bool:
+        if len(self._players) == 1:
+            if self._players[0].role == Role.HUMAN:
+                await self.broadcast_message(EmbedFactory.game_won_humans(""))
+            else:
+                await self.broadcast_message(EmbedFactory.game_won_thing(""))
+            return True
+
+        humans = [p for p in self._players if p.role == Role.HUMAN]
+        infected = [p for p in self._players if p.role != Role.HUMAN]
+
+        if len(self._players) == len(humans):
+            await self.broadcast_message(EmbedFactory.game_won_humans(""))
+        elif len(self._players == len(infected)):
+            await self.broadcast_message(EmbedFactory.game_won_thing(""))
 
     async def start(self):
         self._draw_deck.shuffle()
@@ -78,7 +91,7 @@ class Game:
         await self.deal_hands()
 
         print("Cards are dealt")
-        while not self.game_over:
+        while not await self.game_over:
             print(f"It's player {self._current_player_index}'s turn")
             await self.turn()
             self.advance()
@@ -269,6 +282,13 @@ class Game:
                 ),
                 ViewFactory.empty(),
             )
+
+    async def broadcast_message(self, embed: discord.Embed):
+        for player in self._players:
+            await self._ui_handler._send_message(player.pid, embed, ViewFactory.empty())
+
+        for player in self._dead_players:
+            await self._ui_handler._send_message(player.pid, embed, ViewFactory.empty())
 
     async def pick_card(self, player: Player) -> Card:
         """!!! REMOVES THE SELECTED CARD FROM THE HAND!!!"""
