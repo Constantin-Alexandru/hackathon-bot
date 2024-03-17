@@ -50,7 +50,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.tooltip(card.card_type, card.card_type)
+            embed.tooltip(card.card_type, card.description)
 
         return embed.footer(f"Session ID: {session_id}").embed()
 
@@ -97,7 +97,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.tooltip(card.card_type, card.card_type)
+            embed.tooltip(card.card_type, card.description)
 
         embed.footer(f"Session ID: {session_id}")
 
@@ -113,7 +113,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.tooltip(card.card_type, card.card_type)
+            embed.tooltip(card.card_type, card.description)
 
         embed.footer(f"Session ID: {session_id}")
 
@@ -125,7 +125,7 @@ class EmbedFactory:
             EmbedBuilder()
             .colour(EmbedFactory.card_colour(card))
             .title(f":black_joker: {card.card_type} :black_joker:")
-            .description(card.card_type)
+            .description(card.description)
             .field("Card Type: ", EmbedFactory.card_type(card))
             .embed()
         )
