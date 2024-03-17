@@ -5,7 +5,8 @@ from game import Card
 
 class EmbedFactory:
 
-    def error(self, session_id: str, error_msg: str) -> Embed:
+    @staticmethod
+    def error(session_id: str, error_msg: str) -> Embed:
         return (
             EmbedBuilder()
             .colour("red")
@@ -15,7 +16,8 @@ class EmbedFactory:
             .embed()
         )
 
-    def waitForStart(self, session_id: str, player_count: int) -> Embed:
+    @staticmethod
+    def waitForStart(session_id: str, player_count: int) -> Embed:
         return (
             EmbedBuilder()
             .colour("white")
@@ -28,7 +30,8 @@ class EmbedFactory:
             .embed()
         )
 
-    def waitForTurn(self, session_id: str, action: str) -> Embed:
+    @staticmethod
+    def waitForTurn(session_id: str, action: str) -> Embed:
         return (
             EmbedBuilder()
             .colour("white")
@@ -38,7 +41,8 @@ class EmbedFactory:
             .embed()
         )
 
-    def turn(self, session_id: str, cards: list[Card]) -> Embed:
+    @staticmethod
+    def turn(session_id: str, cards: list[Card]) -> Embed:
         return (
             EmbedBuilder()
             .colour("white")
@@ -48,7 +52,8 @@ class EmbedFactory:
             .embed()
         )
 
-    def card_info(self, card: Card) -> Embed:
+    @staticmethod
+    def card_info(card: Card) -> Embed:
         return (
             EmbedBuilder()
             .colour("white")
@@ -58,7 +63,8 @@ class EmbedFactory:
             .embed()
         )
 
-    def game_won_humans(self, session_id: str) -> Embed:
+    @staticmethod
+    def game_won_humans(session_id: str) -> Embed:
         return (
             EmbedBuilder()
             .colour("white")
@@ -69,7 +75,8 @@ class EmbedFactory:
             .footer(f"Session ID: {session_id}")
         )
 
-    def game_won_thing(self, session_id: str) -> Embed:
+    @staticmethod
+    def game_won_thing(session_id: str) -> Embed:
         return (
             EmbedBuilder()
             .colour("white")
@@ -81,7 +88,8 @@ class EmbedFactory:
             .embed()
         )
 
-    def game_over(self, session_id: str) -> Embed:
+    @staticmethod
+    def game_over(session_id: str) -> Embed:
         return (
             EmbedBuilder()
             .title("Game Over!")
@@ -90,6 +98,7 @@ class EmbedFactory:
             .embed()
         )
 
+    @staticmethod
     def rules(self) -> Embed:
         return (
             EmbedBuilder()
