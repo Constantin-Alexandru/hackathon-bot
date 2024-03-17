@@ -7,6 +7,7 @@ from embedfactory import EmbedFactory
 from ui_handler import UiHandler
 from viewbuilder import ViewBuilder
 from viewfactory import ViewFactory
+import random
 
 
 class Player:
@@ -132,9 +133,20 @@ class Game:
             case CardType.FLAMETHROWER:
                 target_player = await self.pick_adjacent_player()
                 await self.kill(target_player)
+            case CardType.SUSPICIOUS:
+                target_player = await self.pick_adjacent_player()
+                await self.show_random_card(target_player)
 
         print(f"Card {card.card_type} played")
         self._discard_deck.add_card(card)
+
+    async def show_random_card(self, target_player: Player):
+        card_to_show = random.choice(target_player.hand)
+        await self._ui_handler._send_message(
+            self.current_player.pid,
+            EmbedFactory.card_info(card_to_show),
+            ViewBuilder().view(),
+        )
 
     async def pick_adjacent_player(self) -> Player:
         async def next_player(interaction):
