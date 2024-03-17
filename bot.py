@@ -92,6 +92,5 @@ async def on_button_click(interaction):
     if (
         interaction.type == discord.InteractionType.Button
         and interaction.message.author == client.user
-        and interaction.data.custom_id in callbacks
     ):
-        callbacks[interaction.data.custom_id]()
+        pass
