@@ -11,9 +11,14 @@ class UiHandler:
     _futures: dict[tuple[str], Future[str]]
     _send_message: callable[[str, Embed, View], Awaitable[None]]
 
-    def __init__(self, event_loop: AbstractEventLoop) -> None:
+    def __init__(
+        self,
+        event_loop: AbstractEventLoop,
+        _send_message: callable[[str, Embed, View], Awaitable[None]],
+    ) -> None:
         self._event_loop = event_loop
         self._futures = {}
+        self._send_message = _send_message
 
     async def send_user_prompt(
         self, user_id: str, message_id: str, discord_embed: Embed, buttons: View
