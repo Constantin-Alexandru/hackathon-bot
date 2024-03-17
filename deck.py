@@ -197,7 +197,7 @@ class Deck:
 
     def get_deal_card(self) -> Optional[Card]:
         for idx, card in enumerate(self._cards):
-            if card.kind != CardKind.PANIC and card.kind != CardKind.ROLE:
+            if card.kind not in [CardKind.PANIC, CardKind.ROLE]:
                 return self._cards.pop(idx)
         return None
 

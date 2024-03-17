@@ -36,6 +36,7 @@ class Role(Enum):
 
 class Game:
     _players: list[Player]
+    _dead_players: list[Player]
     _draw_deck: Deck
     _discard_deck: Deck
     _current_player_index: int
@@ -43,6 +44,7 @@ class Game:
 
     def __init__(self, player_ids: list[int], handler: UiHandler) -> None:
         self._players = list(map(lambda pid: Player(pid), player_ids))
+        self._dead_players = []
         self._draw_deck = DeckFactory.create_deck(len(self._players))
         self._discard_deck = Deck([])
         self._current_player_index = 0
@@ -61,6 +63,10 @@ class Game:
         return self._players[(self._current_player_index + 1) % self.player_count]
 
     @property
+    def previous_player(self) -> Player:
+        return self._players[(self._current_player_index - 1) % self.player_count]
+
+    @property
     def game_over(self) -> bool:
         return False  # TODO
 
@@ -75,6 +81,7 @@ class Game:
             print(f"It's player {self._current_player_index}'s turn")
             await self.turn()
             self.advance()
+            self.broadcast_player_cards()
 
     def draw_card(self) -> Card:
         card = self._draw_deck.draw()
@@ -119,13 +126,43 @@ class Game:
         ) % self.player_count
 
     async def play(self, card: Card):
-        # match card.card_type:
-        #     case CardType.THE_THING | CardType.INFECTED:
-        #         self.send_error("Cannot play this, dumb fuck!")
-        #     case _:
-        #         raise NotImplementedError()
+        match card.card_type:
+            case CardType.THE_THING | CardType.INFECTED:
+                await self.send_error("Cannot play this, dumb fuck!")
+            case CardType.FLAMETHROWER:
+                target_player = await self.pick_adjacent_player()
+                await self.kill(target_player)
+
         print(f"Card {card.card_type} played")
         self._discard_deck.add_card(card)
+
+    async def pick_adjacent_player(self) -> Player:
+        async def next_player(interaction):
+            self._ui_handler.set_user_response(
+                self.current_player.pid, self.next_player
+            )
+
+        async def previous_player(interaction):
+            self._ui_handler.set_user_response(
+                self.current_player.pid, self.previous_player
+            )
+
+        view_builder = ViewBuilder()
+
+        return await self._ui_handler.send_user_prompt(
+            self.current_player.pid,
+            EmbedFactory.pick_adjacent_player(""),
+            view_builder.add_buton("Next Player", "next", next_player)
+            .add_buton("Previous Player", "previous", previous_player)
+            .view(),
+        )
+
+    async def kill(self, player: Player):
+        self._players.remove(player)
+        self._dead_players.append(player)
+        await self._ui_handler._send_message(
+            player.pid, EmbedFactory.dead(""), ViewBuilder().view()
+        )
 
     async def swap_cards(self, offering_player: Player, receiving_player: Player):
         offered_card = await self.pick_swap_card(offering_player)
@@ -190,8 +227,8 @@ class Game:
         await self.broadcast_player_cards()
         print("Player hands broadcasted")
 
-    def send_error(self, message: str) -> None:
-        self._ui_handler._send_message(
+    async def send_error(self, message: str) -> None:
+        await self._ui_handler._send_message(
             self.current_player.pid,
             EmbedFactory.error("", message),
             ViewFactory.empty(),
@@ -210,13 +247,17 @@ class Game:
         for idx, card in enumerate(player.hand):
 
             async def callback(interaction: discord.Interaction):
-                self._ui_handler.set_user_response(player.pid, idx)
+                self._ui_handler.set_user_response(
+                    player.pid, int(interaction.data["custom_id"])
+                )
 
-            view_builder = view_builder.add_buton(card.card_type, str(idx), callback)
+            view_builder.add_buton(card.card_type, str(idx), callback)
 
         response = await self._ui_handler.send_user_prompt(
             player.pid, EmbedFactory.turn("", player.hand), view_builder.view()
         )
+
+        print(f"Response card: {player.hand[response]}")
 
         return player.hand.pop(response)
 
@@ -226,7 +267,9 @@ class Game:
         for idx, card in enumerate(player.hand):
 
             async def callback(interaction: discord.Interaction):
-                self._ui_handler.set_user_response(player.pid, idx)
+                self._ui_handler.set_user_response(
+                    player.pid, int(interaction.data["custom_id"])
+                )
 
             view_builder = view_builder.add_buton(card.card_type, str(idx), callback)
 

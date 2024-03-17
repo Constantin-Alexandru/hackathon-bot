@@ -66,6 +66,28 @@ class EmbedFactory:
         )
 
     @staticmethod
+    def pick_adjacent_player(session_id: str) -> Embed:
+        return (
+            EmbedBuilder()
+            .colour(Colour.gold())
+            .title("Select who to target")
+            .description("Who will you play that card")
+            .footer(f"Session ID: {session_id}")
+            .embed()
+        )
+
+    @staticmethod
+    def dead(session_id: str) -> Embed:
+        return (
+            EmbedBuilder()
+            .colour(Colour.red())
+            .title("You died :smile:")
+            .description("You get to do nothing more")
+            .footer(f"Session ID: {session_id}")
+            .embed()
+        )
+
+    @staticmethod
     def swap_cards(session_id: str, cards: list[Card]) -> Embed:
         embed = (
             EmbedBuilder()
