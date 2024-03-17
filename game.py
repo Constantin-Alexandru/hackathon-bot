@@ -113,11 +113,12 @@ class Game:
     #     self.play(self.current_player.hand[idx])
 
     async def play(self, card: Card):
-        match card.card_type:
-            case CardType.THE_THING | CardType.INFECTED:
-                self.send_error("Cannot play this, dumb fuck!")
-            case _:
-                raise NotImplementedError()
+        # match card.card_type:
+        #     case CardType.THE_THING | CardType.INFECTED:
+        #         self.send_error("Cannot play this, dumb fuck!")
+        #     case _:
+        #         raise NotImplementedError()
+        print("Play should happen")
 
     async def deal_hands(self):
         deal_deck = Deck([])
