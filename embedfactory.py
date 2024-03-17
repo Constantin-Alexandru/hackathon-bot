@@ -10,7 +10,7 @@ class EmbedFactory:
         return (
             EmbedBuilder()
             .colour(Colour.red())
-            .title("Error Occured!")
+            .title(":x: Error Occured! :x:")
             .description(error_msg)
             .footer("Session ID: " + session_id)
             .embed()
@@ -20,11 +20,9 @@ class EmbedFactory:
     def waitForStart(session_id: str, player_count: int) -> Embed:
         return (
             EmbedBuilder()
-            .colour(Colour.light_grey())
-            .title("Waiting for players")
-            .description(
-                "You need a minimum of 4 players to start a game and can have a maximum of 12"
-            )
+            .colour(Colour.light_grey() if player_count < 4 else Colour.green())
+            .title(f":video_game: Session ID: {session_id} :video_game:")
+            .description("One session of the game can have between 4 and 12 players.")
             .field("Players", f"{player_count} / 12")
             .footer(f"Session ID: {session_id}")
             .embed()
@@ -35,7 +33,7 @@ class EmbedFactory:
         return (
             EmbedBuilder()
             .colour(Colour.blurple())
-            .title("Waiting for your turn...")
+            .title(":hourglass: Waiting for your turn... :hourglass:")
             .description(action)
             .footer(f"Session ID: {session_id}")
             .embed()
@@ -43,25 +41,24 @@ class EmbedFactory:
 
     @staticmethod
     def turn(session_id: str, cards: list[Card]) -> Embed:
-        return (
+        embed = (
             EmbedBuilder()
             .colour(Colour.gold())
-            .title("It is your turn")
+            .title(":white_check_mark: It is your turn :white_check_mark:")
             .description("Pick your action")
-            .field("Card 1", cards[0].name)
-            .field("Card 2", cards[1].name)
-            .field("Card 3", cards[2].name)
-            .field("Card 4", cards[3].name)
-            .footer(f"Session ID: {session_id}")
-            .embed()
         )
+
+        for card in cards:
+            embed.field(card.card_type, card.card_type)
+
+        return embed.footer(f"Session ID: {session_id}").embed()
 
     @staticmethod
     def card_info(card: Card) -> Embed:
         return (
             EmbedBuilder()
             .colour(EmbedBuilder.card_colour(card))
-            .title(card.name)
+            .title(f":black_joker: {card.name} :black_joker:")
             .description(card.description)
             .field("Card Type: ", EmbedBuilder.card_type(card))
             .embed()
@@ -72,7 +69,7 @@ class EmbedFactory:
         return (
             EmbedBuilder()
             .colour(Colour.green())
-            .title("The Thing has lost the game!")
+            .title(":trophy: The Thing has lost the game! :trophy:")
             .description(
                 "The Thing has been eliminated and all remaining players are not infected."
             )
@@ -84,7 +81,7 @@ class EmbedFactory:
         return (
             EmbedBuilder()
             .colour(Colour.dark_grey())
-            .title("The Thing has won the game!")
+            .title(":x: The Thing has won the game! :x:")
             .description(
                 "All remaining players have are now infected, the Thing and the infected have won."
             )

@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 from command import CreateCommand, JoinCommand, StartCommand, GameCommand
 from lobbymanager import LobbyManager
+from embedfactory import EmbedFactory
+from viewfactory import ViewFactory
 
 
 @commands.command()
@@ -19,6 +21,14 @@ async def create(ctx):
 async def join(ctx, session_id: str):
     user_id = ctx.author.id
     await LobbyManager.process_command(JoinCommand(user_id, session_id))
+
+
+@join.error
+async def join_error(ctx, error):
+    user_id = ctx.author.id
+    await send_message(
+        user_id, EmbedFactory.error("", str(error)), ViewFactory.empty()
+    )
 
 
 def create_client() -> commands.Bot:

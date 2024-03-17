@@ -71,7 +71,11 @@ class LobbyManager:
 
         lobby.users[command.user_id] = message_id
 
-        for user_id, msg_id in lobby.users.items():
+        embed = EmbedFactory.waitForStart(command.lobby_id, len(lobby.users) + 1)
+
+        lobby_users = lobby.users.copy()
+
+        for user_id, msg_id in lobby_users.items():
             await LobbyManager._send_message(user_id, embed, view, msg_id)
 
         if len(lobby.users) > 2:
