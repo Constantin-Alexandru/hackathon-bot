@@ -1,4 +1,5 @@
-import discord import DMChannel
+from discord import DMChannel
+import discord
 from viewbuilder import ViewBuilder
 from discord.ext import commands
 from command import CreateCommand, JoinCommand, StartCommand, GameCommand
@@ -20,16 +21,21 @@ async def create(ctx):
 
     async def joinLobby(inter: discord.Interaction):
         await LobbyManager.process_command(JoinCommand(inter.member.user.id, lobby_id))
-        await inter.message.edit(EmbedFactory.waitForStart(lobby_id, len(LobbyManager.__get_lobby(lobby_id).users.keys())),
-            ViewBuilder().add_buton("Join Game", "join", joinLobby))
+        await inter.message.edit(
+            EmbedFactory.waitForStart(
+                lobby_id, len(LobbyManager.__get_lobby(lobby_id).users.keys())
+            ),
+            ViewBuilder().add_buton("Join Game", "join", joinLobby),
+        )
 
     if ctx.channel is not DMChannel:
         await ctx.send(
-            EmbedFactory.waitForStart(lobby_id, len(LobbyManager.__get_lobby(lobby_id).users.keys())),
-            ViewBuilder().add_buton("Join Game", "join", joinLobby)
+            EmbedFactory.waitForStart(
+                lobby_id, len(LobbyManager.__get_lobby(lobby_id).users.keys())
+            ),
+            ViewBuilder().add_buton("Join Game", "join", joinLobby),
         )
 
-        
 
 @commands.command()
 async def join(ctx, session_id: str):
@@ -40,9 +46,7 @@ async def join(ctx, session_id: str):
 @join.error
 async def join_error(ctx, error):
     user_id = ctx.author.id
-    await send_message(
-        user_id, EmbedFactory.error("", str(error)), ViewFactory.empty()
-    )
+    await send_message(user_id, EmbedFactory.error("", str(error)), ViewFactory.empty())
 
 
 def create_client() -> commands.Bot:
