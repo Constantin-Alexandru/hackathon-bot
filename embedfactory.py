@@ -102,7 +102,7 @@ class EmbedFactory:
         )
 
     @staticmethod
-    def rules(self) -> Embed:
+    def rules() -> Embed:
         return (
             EmbedBuilder()
             .colour(Colour.light_grey())
@@ -139,7 +139,7 @@ class EmbedFactory:
         )
 
     @staticmethod
-    def card_colour(self, card: Card) -> Colour:
+    def card_colour(card: Card) -> Colour:
         """Returns the corresponding colour based on the type of card"""
         if card.kind == CardKind.ROLE:
             return Colour.red()
@@ -151,7 +151,7 @@ class EmbedFactory:
             return Colour.blue()
 
     @staticmethod
-    def card_type(self, card: Card) -> str:
+    def card_type(card: Card) -> str:
         """Returns a string for the card type"""
         if card.kind == CardKind.ROLE:
             return "Role"

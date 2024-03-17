@@ -55,7 +55,7 @@ class Game:
     def current_player(self) -> Player:
         return self._players[self._current_player_index]
 
-    def start(self):
+    async def start(self):
         self._draw_deck.shuffle()
 
         self.deal_hands()
@@ -84,6 +84,7 @@ class Game:
 
         async def callback(interaction: discord.Interaction):
             print(interaction.data["custom_id"])
+            self._ui_handler.set_user_response(self.current_player.pid, "true")
 
         if drawn_card.kind == CardKind.PANIC:
             self.play(drawn_card)
@@ -110,7 +111,7 @@ class Game:
     def play(self, card: Card):
         match card.card_type:
             case CardType.THE_THING | CardType.INFECTED:
-                self.update_interface("Cannot play this, dumb fuck!")
+                self.send_error("Cannot play this, dumb fuck!")
             case _:
                 raise NotImplementedError()
 
@@ -133,5 +134,5 @@ class Game:
             for _ in range(4):
                 player.deal_card(deal_deck.draw())
 
-    def update_interface(self, message: str) -> None:
-        print(message)
+    def send_error(self, message: str) -> None:
+        self._ui_handler._send_message(EmbedFactory.error("", message))

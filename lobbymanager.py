@@ -134,7 +134,7 @@ class LobbyManager:
         if not lobby:
             return False
 
-        lobby.start_game(command.event_loop, command._send_message)
+        await lobby.start_game(command.event_loop, command._send_message)
 
     @staticmethod
     async def process_command(command: Command) -> None:

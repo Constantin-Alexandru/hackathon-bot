@@ -24,7 +24,7 @@ class Lobby:
         if self.host_id[0] == user_id:
             return self.host_id[1]
 
-    def start_game(
+    async def start_game(
         self,
         event_loop: AbstractEventLoop,
         _send_mesage: Callable[[int, int, Embed, View], Awaitable[None]],
@@ -40,10 +40,12 @@ class Lobby:
         players.append(self.host_id[0])
 
         self.game = Game(players, self.ui_handler)
+        await self.game.start()
 
-    def send_response(self, user_id: int, value: str):
-        if self.ui_handler is not None:
-            self.ui_handler.set_user_response(user_id, value)
+
+def send_response(self, user_id: int, value: str):
+    if self.ui_handler is not None:
+        self.ui_handler.set_user_response(user_id, value)
 
 
 def create_lobby(lobby_id: str, host_id: int, message_id: int) -> Lobby:
