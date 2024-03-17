@@ -18,6 +18,17 @@ class EmbedFactory:
         )
 
     @staticmethod
+    def panicDrawn(session_id: str, card: Card) -> Embed:
+        return (
+            EmbedBuilder()
+            .colour(Colour.light_grey())
+            .title(f":video_game: PANIC CARD {card.card_type} DRAWN :video_game:")
+            .description("The card was played")
+            .tooltip(card.card_type, card.description)
+            .embed()
+        )
+
+    @staticmethod
     def waitForStart(session_id: str, player_count: int) -> Embed:
         return (
             EmbedBuilder()

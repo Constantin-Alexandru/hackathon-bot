@@ -81,7 +81,7 @@ class Game:
             print(f"It's player {self._current_player_index}'s turn")
             await self.turn()
             self.advance()
-            self.broadcast_player_cards()
+            await self.broadcast_player_cards()
 
     def draw_card(self) -> Card:
         card = self._draw_deck.draw()
@@ -106,14 +106,21 @@ class Game:
 
         if drawn_card.kind == CardKind.PANIC:
             terminates_turn = drawn_card.terminates
+            await self._ui_handler._send_message(
+                self.current_player.pid, EmbedFactory.panicDrawn("", drawn_card)
+            )
             await self.play(drawn_card)
         else:
             self.current_player.deal_card(drawn_card)
             card = await self.pick_card(self.current_player)
-            is_playing = await self.discard_or_play(self.current_player, card)
-            if is_playing:
-                terminates_turn = card.terminates
-                await self.play(card)
+
+            if card.card_type != CardType.THE_THING:
+                is_playing = await self.discard_or_play(self.current_player, card)
+                if is_playing:
+                    terminates_turn = card.terminates
+                    await self.play(card)
+            else:
+                self.current_player.hand.append(card)
 
         if terminates_turn:
             return
@@ -166,25 +173,27 @@ class Game:
 
     async def swap_cards(self, offering_player: Player, receiving_player: Player):
         offered_card = await self.pick_swap_card(offering_player)
+
+        if offered_card.card_type == CardType.THE_THING:
+            offering_player.hand.append(offered_card)
+            return
+
         print(
             f"Player {offering_player.pid} offers {offered_card.card_type} to {receiving_player.pid}"
         )
 
-        accepting = await self.accept_or_defend(receiving_player)
+        print(f"Player {receiving_player.pid} accepts")
+        response_card = await self.pick_swap_card(receiving_player)
 
-        if accepting:
-            print(f"Player {receiving_player.pid} accepts")
-            response_card = await self.pick_swap_card(receiving_player)
-            print(
-                f"Player {receiving_player.pid} chose to respond with {response_card.card_type}"
-            )
-            offering_player.give_card(response_card)
-            receiving_player.give_card(offered_card)
-        else:
-            defense_card = await self.pick_card(receiving_player)
-            await self.play(defense_card)  # TODO
-            receiving_player.deal_card(self.draw_non_panic())
-            assert len(receiving_player.hand) == 4
+        if response_card.card_type == CardType.THE_THING:
+            receiving_player.hand.append(response_card)
+            return
+
+        print(
+            f"Player {receiving_player.pid} chose to respond with {response_card.card_type}"
+        )
+        offering_player.give_card(response_card)
+        receiving_player.give_card(offered_card)
 
     async def pick_swap_card(self, player: Player):
         selected_card = await self.pick_swap_card_prompt(player)
@@ -237,7 +246,16 @@ class Game:
     async def broadcast_player_cards(self):
         for player in self._players:
             await self._ui_handler._send_message(
-                player.pid, EmbedFactory.turn("", player.hand), ViewFactory.empty()
+                player.pid,
+                (
+                    EmbedFactory.turn("", player.hand)
+                    if player.pid == self.current_player.pid
+                    else EmbedFactory.waitForTurn(
+                        "",
+                        f"Waiting for player {self._current_player_index + 1} to play",
+                    )
+                ),
+                ViewFactory.empty(),
             )
 
     async def pick_card(self, player: Player) -> Card:
