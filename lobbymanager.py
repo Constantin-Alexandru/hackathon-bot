@@ -79,6 +79,15 @@ class LobbyManager:
             )
             return False
 
+        if lobby.open == False:
+            errorEmbed = EmbedFactory.error(
+                command.lobby_id, f"Lobby is is no longer open."
+            )
+            await LobbyManager._send_message(
+                command.user_id, errorEmbed, ViewFactory.empty()
+            )
+            return False
+
         view = ViewFactory.empty()
 
         embed = EmbedFactory.waitForStart(command.lobby_id, len(lobby.users) + 2)

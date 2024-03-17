@@ -16,6 +16,10 @@ class Lobby:
     ui_handler: Optional[UiHandler]
     game: Optional[Game]
 
+    @property
+    def open(self) -> bool:
+        return self.game is None
+
     def __get_msg_id(self, user_id: int) -> int:
         if self.host_id[0] == user_id:
             return self.host_id[1]
