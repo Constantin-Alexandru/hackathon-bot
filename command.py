@@ -18,7 +18,7 @@ class CreateCommand(Command):
 
 
 class JoinCommand(Command):
-    def __init__(self, user_id: int, lobby_id: int) -> None:
+    def __init__(self, user_id: int, lobby_id: str) -> None:
         super().__init__(CommandType.JOIN, user_id)
         self.lobby_id = lobby_id
 
@@ -27,7 +27,7 @@ class StartCommand(Command):
     def __init__(
         self,
         user_id: int,
-        lobby_id: int,
+        lobby_id: str,
         event_loop: AbstractEventLoop,
         _send_message: Callable[[int, int, Embed, View], Awaitable[None]],
     ) -> None:

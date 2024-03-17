@@ -27,7 +27,9 @@ class LobbyManager:
         LobbyManager._send_message = send_message
 
     @staticmethod
-    def __get_lobby(session_id) -> Lobby | None:
+    def __get_lobby(session_id: str) -> Lobby | None:
+        session_id = session_id.upper()
+
         for lobby in LobbyManager.lobbies:
             if lobby.id == session_id:
                 return lobby

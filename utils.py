@@ -3,7 +3,7 @@ import string
 
 
 def random_string(
-    option_string: str = string.ascii_uppercase + string.digits, length: int = 5
+    option_string: str = string.ascii_uppercase, length: int = 5
 ) -> str:
     return "".join(random.choices(option_string, k=length))
 
