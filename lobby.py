@@ -26,17 +26,17 @@ class Lobby:
         elif user_id in self.users.keys():
             return self.users[user_id]
         else:
-            return -1
+            raise IndexError("-1")
 
     async def start_game(
         self,
         event_loop: AbstractEventLoop,
-        _send_mesage: Callable[[int, int, Embed, View], Awaitable[None]],
+        _send_mesage: Callable[[int, Embed, View, int], Awaitable[None]],
     ):
         self.ui_handler = UiHandler(
             event_loop,
             lambda user_id, embed, view: _send_mesage(
-                user_id, self.__get_msg_id(user_id), embed, view
+                user_id, embed, view, self.__get_msg_id(user_id)
             ),
         )
 
