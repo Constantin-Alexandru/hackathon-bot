@@ -1,4 +1,5 @@
-import discord
+import discord import DMChannel
+from viewbuilder import ViewBuilder
 from discord.ext import commands
 from command import CreateCommand, JoinCommand, StartCommand, GameCommand
 from lobbymanager import LobbyManager
@@ -14,8 +15,21 @@ async def ping(ctx):
 @commands.command()
 async def create(ctx):
     user_id = ctx.author.id
-    await LobbyManager.process_command(CreateCommand(user_id))
 
+    lobby_id: str = await LobbyManager.process_command(CreateCommand(user_id))
+
+    async def joinLobby(inter: discord.Interaction):
+        await LobbyManager.process_command(JoinCommand(inter.member.user.id, lobby_id))
+        await inter.message.edit(EmbedFactory.waitForStart(lobby_id, len(LobbyManager.__get_lobby(lobby_id).users.keys())),
+            ViewBuilder().add_buton("Join Game", "join", joinLobby))
+
+    if ctx.channel is not DMChannel:
+        await ctx.send(
+            EmbedFactory.waitForStart(lobby_id, len(LobbyManager.__get_lobby(lobby_id).users.keys())),
+            ViewBuilder().add_buton("Join Game", "join", joinLobby)
+        )
+
+        
 
 @commands.command()
 async def join(ctx, session_id: str):
