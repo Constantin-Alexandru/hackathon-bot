@@ -27,7 +27,9 @@ class LobbyManager:
         LobbyManager._send_message = send_message
 
     @staticmethod
-    def __get_lobby(session_id) -> Lobby | None:
+    def __get_lobby(session_id: str) -> Lobby | None:
+        session_id = session_id.upper()
+
         for lobby in LobbyManager.lobbies:
             if lobby.id == session_id:
                 return lobby
@@ -66,6 +68,15 @@ class LobbyManager:
         if lobby.host_id[0] == command.user_id:
             errorEmbed = EmbedFactory.error(
                 command.lobby_id, f"You cannot join your own lobby"
+            )
+            await LobbyManager._send_message(
+                command.user_id, errorEmbed, ViewFactory.empty()
+            )
+            return False
+        
+        if command.user_id in lobby:
+            errorEmbed = EmbedFactory.error(
+                command.lobby_id, f"You are already in this lobby"
             )
             await LobbyManager._send_message(
                 command.user_id, errorEmbed, ViewFactory.empty()
