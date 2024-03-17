@@ -58,10 +58,10 @@ class EmbedFactory:
     def card_info(card: Card) -> Embed:
         return (
             EmbedBuilder()
-            .colour(EmbedBuilder.card_colour(card))
+            .colour(EmbedFactory.card_colour(card))
             .title(f":black_joker: {card.name} :black_joker:")
             .description(card.card_type)
-            .field("Card Type: ", EmbedBuilder.card_type(card))
+            .field("Card Type: ", EmbedFactory.card_type(card))
             .embed()
         )
 
