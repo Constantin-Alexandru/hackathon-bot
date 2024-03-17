@@ -62,6 +62,7 @@ class EmbedFactory:
             .title("A trade was offered. What do you do?")
             .description("Will you accept or defend?")
             .footer(f"Session ID: {session_id}")
+            .embed()
         )
 
     @staticmethod
