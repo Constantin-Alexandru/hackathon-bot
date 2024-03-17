@@ -1,8 +1,25 @@
 import discord
 from discord.ext import commands
-from command import CreateCommand, JoinCommand
+from command import CreateCommand, JoinCommand, StartCommand, GameCommand
 from callbacks import callbacks
 from lobbymanager import LobbyManager
+
+
+@commands.command()
+async def ping(ctx):
+    await ctx.send("pong")
+
+
+@commands.command()
+async def create(ctx):
+    user_id = ctx.author.id
+    await LobbyManager.process_command(CreateCommand(user_id))
+
+
+@commands.command()
+async def join(ctx, session_id: str):
+    user_id = ctx.author.id
+    await LobbyManager.process_command(JoinCommand(user_id, session_id))
 
 
 def create_client() -> commands.Bot:
@@ -19,27 +36,10 @@ def create_client() -> commands.Bot:
 client = create_client()
 
 
-@commands.command()
-async def ping(ctx):
-    await ctx.send("pong")
-
-
-@commands.command()
-async def create(ctx):
-    user_id = ctx.author.id
-    LobbyManager.process_command(CreateCommand(user_id))
-
-
-@commands.command()
-async def join(ctx, session_id: str):
-    user_id = ctx.author.id
-    LobbyManager.process_command(JoinCommand(user_id, session_id))
-
-
 async def send_message(
     user_id: int,
     message: discord.Embed,
-    buttons: discord.ui.View = discord.ui.View(),
+    buttons: discord.ui.View,
     message_id: int | None = None,
 ) -> int:
 
@@ -74,10 +74,23 @@ async def send_message(
         return -1
 
 
+LobbyManager.set_send_message(send_message)
+
+
+async def add_button():
+    res = await client.wait_for()
+
+
 @client.event
-async def on_button_click(interaction):
+async def button_click(interaction):
     if (
         interaction.type == discord.InteractionType.Button
         and interaction.message.author == client.user
     ):
-        pass
+        print("REACHED")
+
+        user_id, lobby_id, value = interaction.data.custom_id.split("_")
+
+        await LobbyManager.process_command(GameCommand(int(user_id), lobby_id, value))
+    else:
+        print("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUCK")

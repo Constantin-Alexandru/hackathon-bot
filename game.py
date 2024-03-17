@@ -9,14 +9,12 @@ from viewbuilder import ViewBuilder
 
 
 class Player:
-    pid: str
-    mid: str
+    pid: int
     hand: list[Card]
     role: Role
 
-    def __init__(self, pid: str, mid: str) -> None:
+    def __init__(self, pid: int) -> None:
         self.pid = pid
-        self.mid = mid
         self.hand = list()
         self.role = Role.HUMAN
 
@@ -41,13 +39,17 @@ class Game:
     _discard_deck: Deck
     _current_player_index: int
     _ui_handler: UiHandler
+    _lobby_id: str
 
-    def __init__(self, player_ids: list[tuple[str]], handler: UiHandler) -> None:
-        self._players = list(map(lambda ids: Player(ids[0], ids[1]), player_ids))
+    def __init__(
+        self, player_ids: list[int], handler: UiHandler, lobby_id: str
+    ) -> None:
+        self._players = list(map(lambda pid: Player(pid), player_ids))
         self._draw_deck = DeckFactory.create_deck(len(self._players))
         self._discard_deck = Deck([])
         self._current_player_index = 0
         self._ui_handler = handler
+        self._lobby_id = lobby_id
 
     @property
     def player_count(self) -> int:
@@ -88,7 +90,18 @@ class Game:
             self.play(drawn_card)
         else:
             self.current_player.give_card(drawn_card)
-            response = await self._ui_handler.send_user_prompt(self.current_player.pid, self.current_player.mid, EmbedFactory().rules(), ViewBuilder().add_buton("Suck Cock", discord.ButtonStyle.primary, False, "suck_cock").view())
+            response = await self._ui_handler.send_user_prompt(
+                self.current_player.pid,
+                EmbedFactory.rules(),
+                ViewBuilder()
+                .add_buton(
+                    "Suck Cock",
+                    discord.ButtonStyle.primary,
+                    False,
+                    f"{self._lobby_id}_{self.current_player.pid}_suck.cock",
+                )
+                .view(),
+            )
             print(f"response: {response}")
 
     def play_card_index(self, idx: int):
@@ -119,7 +132,6 @@ class Game:
         for player in self._players:
             for _ in range(4):
                 player.deal_card(deal_deck.draw())
-    
+
     def update_interface(self, message: str) -> None:
         print(message)
-
