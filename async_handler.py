@@ -1,8 +1,9 @@
+from __future__ import annotations
 import asyncio
 import time
 from typing import Awaitable
 from asyncio import Future, Lock, Task
-from __future__ import annotations
+
 
 class AsyncHandler:
     __awaiting_lock: Lock
@@ -22,23 +23,22 @@ class AsyncHandler:
         async with self.__awaiting_lock.acquire():
             (_, fut) = self.__awaiting.pop(uid)
         fut.set_result(msg)
-        
+
     async def await_msg(self, uid: int, timeout_s: int) -> Awaitable[str]:
         fut: Future = Future()
-        
+
         async with self.__awaiting_lock.acquire():
             self.__awaiting[uid] = (fut, time.time() + timeout_s)
-        
+
         return fut
-    
+
     async def check_timeout(self) -> None:
         while True:
             time_now_s: float = time.time()
             async with self.__awaiting_lock.acquire():
                 for tup in self.__awaiting:
                     timeout_s, fut = tup
-                    if (timeout_s < time_now_s):
+                    if timeout_s < time_now_s:
                         self.__awaiting.pop(tup)
                         fut.set_exception(Exception("timed out waiting for response"))
             asyncio.sleep(1)
-    

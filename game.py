@@ -1,15 +1,22 @@
 from __future__ import annotations
 from enum import Enum, auto
+
+import discord
 from deck import DeckFactory, Deck, Card, CardType, CardKind
+from embedfactory import EmbedFactory
+from ui_handler import UiHandler
+from viewbuilder import ViewBuilder
 
 
 class Player:
     pid: str
+    mid: str
     hand: list[Card]
     role: Role
 
-    def __init__(self, pid: str) -> None:
+    def __init__(self, pid: str, mid: str) -> None:
         self.pid = pid
+        self.mid = mid
         self.hand = list()
         self.role = Role.HUMAN
 
@@ -33,12 +40,14 @@ class Game:
     _draw_deck: Deck
     _discard_deck: Deck
     _current_player_index: int
+    _ui_handler: UiHandler
 
-    def __init__(self, player_ids: list[str]) -> None:
-        self._players = list(map(lambda pid: Player(pid), player_ids))
+    def __init__(self, player_ids: list[tuple[str]], handler: UiHandler) -> None:
+        self._players = list(map(lambda ids: Player(ids[0], ids[1]), player_ids))
         self._draw_deck = DeckFactory.create_deck(len(self._players))
         self._discard_deck = Deck([])
         self._current_player_index = 0
+        self._ui_handler = handler
 
     @property
     def player_count(self) -> int:
@@ -71,6 +80,16 @@ class Game:
             self.current_player.give_card(drawn_card)
 
         # TODO: Tell frontend what's happened
+
+    async def turn(self):
+        drawn_card = self.draw_card()
+
+        if drawn_card.kind == CardKind.PANIC:
+            self.play(drawn_card)
+        else:
+            self.current_player.give_card(drawn_card)
+            response = await self._ui_handler.send_user_prompt(self.current_player.pid, self.current_player.mid, EmbedFactory().rules(), ViewBuilder().add_buton("Suck Cock", discord.ButtonStyle.primary, False, "suck_cock").view())
+            print(f"response: {response}")
 
     def play_card_index(self, idx: int):
         self.play(self.current_player.hand[idx])
