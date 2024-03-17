@@ -50,7 +50,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.tooltip(card.card_type)
+            embed.tooltip(card.card_type, card.card_type)
 
         return embed.footer(f"Session ID: {session_id}").embed()
 
@@ -60,7 +60,7 @@ class EmbedFactory:
             EmbedBuilder()
             .colour(EmbedBuilder.card_colour(card))
             .title(f":black_joker: {card.name} :black_joker:")
-            .tooltip(card.description)
+            .description(card.card_type)
             .field("Card Type: ", EmbedBuilder.card_type(card))
             .embed()
         )

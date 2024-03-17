@@ -18,8 +18,8 @@ class EmbedBuilder:
         self._embed.description = description
         return self
 
-    def tooltip(self, tooltip: str) -> EmbedBuilder:
-        self._embed.description += f'[Info](https://discord.com "{tooltip}")'
+    def tooltip(self, text: str, tooltip: str) -> EmbedBuilder:
+        self._embed.description += f'\n{text}: [Info](https://discord.com "{tooltip}")'
         return self
 
     def field(
