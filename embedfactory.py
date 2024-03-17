@@ -60,10 +60,10 @@ class EmbedFactory:
     def card_info(card: Card) -> Embed:
         return (
             EmbedBuilder()
-            .colour(self.card_colour(card))
+            .colour(EmbedBuilder.card_colour(card))
             .title(card.name)
             .description(card.description)
-            .field("Card Type: ", self.card_type(card))
+            .field("Card Type: ", EmbedBuilder.card_type(card))
             .embed()
         )
 
@@ -140,8 +140,9 @@ class EmbedFactory:
             .embed()
         )
 
-    # Returns the corresponding colour based on the type of card
+    @staticmethod
     def card_colour(self, card: Card) -> Colour:
+        """Returns the corresponding colour based on the type of card"""
         if card.kind == CardKind.ROLE:
             return Colour.red()
         if card.kind == CardKind.PANIC:
@@ -151,8 +152,9 @@ class EmbedFactory:
         if card.kind == CardKind.DEFENSE:
             return Colour.blue()
 
-    # Returns a string for the card type
+    @staticmethod
     def card_type(self, card: Card) -> str:
+        """Returns a string for the card type"""
         if card.kind == CardKind.ROLE:
             return "Role"
         if card.kind == CardKind.PANIC:

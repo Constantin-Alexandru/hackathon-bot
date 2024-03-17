@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from command import CreateCommand, JoinCommand, StartCommand, GameCommand
-from callbacks import callbacks
 from lobbymanager import LobbyManager
 
 
@@ -75,7 +74,7 @@ async def send_message(
 
 
 LobbyManager.set_send_message(send_message)
-LobbyManager.set_client(client)
+LobbyManager.setc(send_message)
 
 
 async def add_button():
