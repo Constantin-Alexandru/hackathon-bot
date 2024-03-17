@@ -23,6 +23,10 @@ class Lobby:
     def __get_msg_id(self, user_id: int) -> int:
         if self.host_id[0] == user_id:
             return self.host_id[1]
+        elif user_id in self.users.keys():
+            return self.users[user_id]
+        else:
+            return -1
 
     async def start_game(
         self,
