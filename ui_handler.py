@@ -1,6 +1,6 @@
 from __future__ import annotations
 from asyncio import Future, AbstractEventLoop
-from typing import Awaitable
+from typing import Any, Awaitable, Callable
 
 from discord import Embed
 from discord.ui import View
@@ -8,13 +8,13 @@ from discord.ui import View
 
 class UiHandler:
     _event_loop: AbstractEventLoop
-    _futures: dict[int, Future[str]]
-    _send_message: callable[[int, Embed, View], Awaitable[None]]
+    _futures: dict[int, Future[Any]]
+    _send_message: Callable[[int, Embed, View], Awaitable[None]]
 
     def __init__(
         self,
         event_loop: AbstractEventLoop,
-        _send_message: callable[[int, Embed, View], Awaitable[None]],
+        _send_message: Callable[[int, Embed, View], Awaitable[None]],
     ) -> None:
         self._event_loop = event_loop
         self._futures = {}
@@ -22,7 +22,7 @@ class UiHandler:
 
     async def send_user_prompt(
         self, user_id: int, discord_embed: Embed, buttons: View
-    ) -> str:
+    ) -> Any:
         fut = self._event_loop.create_future()
         self._futures[user_id] = fut
 
@@ -30,5 +30,5 @@ class UiHandler:
 
         return await fut
 
-    def set_user_response(self, user_id: int, value: str) -> None:
+    def set_user_response(self, user_id: int, value: Any) -> None:
         self._futures[user_id].set_result(value)

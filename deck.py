@@ -56,38 +56,48 @@ class Card:
         match self.card_type:
             case CardType.THE_THING | CardType.INFECTED:
                 return CardKind.ROLE
-            case CardType.FLAMETHROWER | \
-                CardType.ANALYSIS | \
-                CardType.AXE | \
-                CardType.SUSPICIOUS | \
-                CardType.WHISKEY | \
-                CardType.RESOLUTE | \
-                CardType.WATCH_YOUR_BACK | \
-                CardType.CHANGE_PLACES | \
-                CardType.YOUD_BETTER_RUN | \
-                CardType.SEDUCTION:
+            case (
+                CardType.FLAMETHROWER
+                | CardType.ANALYSIS
+                | CardType.AXE
+                | CardType.SUSPICIOUS
+                | CardType.WHISKEY
+                | CardType.RESOLUTE
+                | CardType.WATCH_YOUR_BACK
+                | CardType.CHANGE_PLACES
+                | CardType.YOUD_BETTER_RUN
+                | CardType.SEDUCTION
+            ):
                 return CardKind.ACTION
-            case CardType.SCARY | \
-                CardType.IM_COMFORTABLE | \
-                CardType.NO_THANKS | \
-                CardType.MISSED | \
-                CardType.NO_BARBECUE:
+            case (
+                CardType.SCARY
+                | CardType.IM_COMFORTABLE
+                | CardType.NO_THANKS
+                | CardType.MISSED
+                | CardType.NO_BARBECUE
+            ):
                 return CardKind.DEFENSE
             case CardType.QUARANTINE | CardType.BARRED_DOOR:
                 return CardKind.OBSTACLE
-            case CardType.ROTTEN_ROPES | \
-                CardType.ONE_TWO_THREE | \
-                CardType.FOUR_FIVE_SIX | \
-                CardType.WHERES_THE_PARTY | \
-                CardType.GET_OUT_OF_HERE | \
-                CardType.FORGETFUL | \
-                CardType.RING_AROUND_THE_ROSIE | \
-                CardType.LETS_BE_FRIENDS | \
-                CardType.BLIND_DATE | \
-                CardType.OOOPS | \
-                CardType.BETWEEN_US | \
-                CardType.REVELATIONS:
+            case (
+                CardType.ROTTEN_ROPES
+                | CardType.ONE_TWO_THREE
+                | CardType.FOUR_FIVE_SIX
+                | CardType.WHERES_THE_PARTY
+                | CardType.GET_OUT_OF_HERE
+                | CardType.FORGETFUL
+                | CardType.RING_AROUND_THE_ROSIE
+                | CardType.LETS_BE_FRIENDS
+                | CardType.BLIND_DATE
+                | CardType.OOOPS
+                | CardType.BETWEEN_US
+                | CardType.REVELATIONS
+            ):
                 return CardKind.PANIC
+
+    @property
+    def terminates(self) -> bool:
+        return False  # TODO
 
 
 class Deck:
