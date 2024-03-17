@@ -142,7 +142,11 @@ class Game:
         await self.broadcast_player_cards()
 
     def send_error(self, message: str) -> None:
-        self._ui_handler._send_message(EmbedFactory.error("", message))
+        self._ui_handler._send_message(
+            self.current_player.pid,
+            EmbedFactory.error("", message),
+            ViewFactory.empty(),
+        )
 
     async def broadcast_player_cards(self):
         for player in self._players:
