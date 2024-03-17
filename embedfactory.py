@@ -50,7 +50,7 @@ class EmbedFactory:
         )
 
         for card in cards:
-            embed.tooltip(card.card_type)
+            embed.tooltip(card.card_type, card.card_type)
 
         return embed.footer(f"Session ID: {session_id}").embed()
 
@@ -58,10 +58,10 @@ class EmbedFactory:
     def card_info(card: Card) -> Embed:
         return (
             EmbedBuilder()
-            .colour(EmbedBuilder.card_colour(card))
-            .title(f":black_joker: {card.name} :black_joker:")
-            .tooltip(card.description)
-            .field("Card Type: ", EmbedBuilder.card_type(card))
+            .colour(EmbedFactory.card_colour(card))
+            .title(f":black_joker: {card.card_type} :black_joker:")
+            .description(card.card_type)
+            .field("Card Type: ", EmbedFactory.card_type(card))
             .embed()
         )
 
@@ -149,6 +149,8 @@ class EmbedFactory:
             return Colour.green()
         if card.kind == CardKind.DEFENSE:
             return Colour.blue()
+        else:
+            return Colour.gold()
 
     @staticmethod
     def card_type(card: Card) -> str:
